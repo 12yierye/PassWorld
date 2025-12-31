@@ -4,4 +4,3 @@ An app for storing passwords of your accounts from different platforms.
 ## Features
 - Before adding a new password, you must login by your FaceID.
 - You can search, add, edit and delete your passwords freely.
-
