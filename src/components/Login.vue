@@ -22,6 +22,9 @@
           <span v-else>识别中...</span>
         </button>
         <button @click="step = 'authMethod'" class="back-btn">返回</button>
+        
+        <!-- 在登录步骤显示模型加载状态 -->
+        <div v-if="message && step !== 'authMethod'" class="message">{{ message }}</div>
       </div>
       
       <div v-if="step === 'register'" class="register-step">
@@ -37,6 +40,7 @@
           </button>
           <button @click="step = 'authMethod'" class="back-btn">返回</button>
         </div>
+        
         <div v-else-if="registerStep === 2">
           <p>请录入您的面部信息</p>
           <div class="video-container">
@@ -52,9 +56,10 @@
           <p>人脸录入成功！</p>
           <button @click="completeRegistration" class="submit-btn">完成注册</button>
         </div>
+        
+        <!-- 在注册步骤显示模型加载状态 -->
+        <div v-if="message && step !== 'authMethod'" class="message">{{ message }}</div>
       </div>
-      
-      <div v-if="message" class="message">{{ message }}</div>
     </div>
   </div>
 </template>
@@ -208,8 +213,8 @@ const captureFace = async () => {
       message.value = result.message || '人脸录入失败';
     }
   } catch (error) {
-    console.error('人脸录入失败:', error);
-    message.value = '人脸录入失败，请重试';
+    console.error('录入人脸时出错:', error);
+    message.value = '录入过程中出现错误';
   }
   
   loading.value = false;
@@ -252,8 +257,10 @@ onMounted(async () => {
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 80vh;
+  max-height: 80vh;
   height: 100vh;
-  background: linear-gradient(135deg, #4285f4, #34a853, #fbbc05, #ea4335);
+  overflow: hidden;
 }
 
 .login-box {
