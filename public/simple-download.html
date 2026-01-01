@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模型下载助手</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .instructions {
+      background-color: #e7f3ff;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+    .model-section {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #fafafa;
+    }
+    h2 {
+      margin-top: 0;
+      color: #4285f4;
+    }
+    .file-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .file-link {
+      display: inline-block;
+      padding: 8px 15px;
+      background-color: #4285f4;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .file-link:hover {
+      background-color: #3367d6;
+    }
+    .note {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: 4px;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>人脸识别模型下载助手</h1>
+    
+    <div class="instructions">
+      <p><strong>说明：</strong>点击下面的链接下载模型文件，并将它们保存到 <code>e:\PassWorld\public\models\</code> 目录中。</p>
+      <p><strong>重要：</strong>确保文件夹 <code>public/models</code> 存在，如果不存在请手动创建。</p>
+    </div>
+
+    <div class="model-section">
+      <h2>1. Tiny Face Detector 模型</h2>
+      <p>用于快速检测图像中的人脸位置</p>
+      <div class="file-list">
+        <a href="https://registry.npmmirror.com/face-api.js/0.22.2/files/weights/tiny_face_detector_model-weights_manifest.json" 
+           class="file-link" target="_blank" rel="noopener" download>manifest.json</a>
+        <a href="https://registry.npmmirror.com/face-api.js/0.22.2/files/weights/tiny_face_detector_model-shard1" 
+           class="file-link" target="_blank" rel="noopener" download>shard1</a>
+        <a href="https://registry.npmmirror.com/face-api.js/0.22.2/files/weights/tiny_face_detector_model-shard2" 
+           class="file-link" target="_blank" rel="noopener" download>shard2</a>
+      </div>
+    </div>
+
+    <div class="model-section">
+      <h2>2. Face Landmark 68 模型</h2>
+      <p>用于识别人脸上的68个关键点</p>
+      <div class="file-list">
+        <a href="https://registry.npmmirror.com/face-api.js/0.22.2/files/weights/face_landmark_68_model-weights_manifest.json" 
+           class="file-link" target="_blank" rel="noopener" download>manifest.json</a>
+        <a href="https://registry.npmmirror.com/face-api.js/0.22.2/files/weights/face_landmark_68_model-shard1" 
+           class="file-link" target="_blank" rel="noopener" download>shard1</a>
+      </div>
+    </div>
+
+    <div class="model-section">
+      <h2>3. Face Recognition 模型</h2>
+      <p>用于识别人脸并提取特征向量</p>
+      <div class="file-list">
+        <a href="https://registry.npmmirror.com/face-api.js/0.22.2/files/weights/face_recognition_model-weights_manifest.json" 
+           class="file-link" target="_blank" rel="noopener" download>manifest.json</a>
+        <a href="https://registry.npmmirror.com/face-api.js/0.22.2/files/weights/face_recognition_model-shard1" 
+           class="file-link" target="_blank" rel="noopener" download>shard1</a>
+        <a href="https://registry.npmmirror.com/face-api.js/0.22.2/files/weights/face_recognition_model-shard2" 
+           class="file-link" target="_blank" rel="noopener" download>shard2</a>
+        <a href="https://registry.npmmirror.com/face-api.js/0.22.2/files/weights/face_recognition_model-shard3" 
+           class="file-link" target="_blank" rel="noopener" download>shard3</a>
+      </div>
+    </div>
+
+    <div class="model-section">
+      <h2>4. Face Expression 模型</h2>
+      <p>用于识别人脸表情</p>
+      <div class="file-list">
+        <a href="https://registry.npmmirror.com/face-api.js/0.22.2/files/weights/face_expression_model-weights_manifest.json" 
+           class="file-link" target="_blank" rel="noopener" download>manifest.json</a>
+        <a href="https://registry.npmmirror.com/face-api.js/0.22.2/files/weights/face_expression_model-shard1" 
+           class="file-link" target="_blank" rel="noopener" download>shard1</a>
+      </div>
+    </div>
+
+    <div class="note">
+      <p><strong>完成步骤：</strong></p>
+      <ol>
+        <li>点击上述所有链接下载模型文件</li>
+        <li>将下载的文件保存到 <code>e:\PassWorld\public\models\</code> 目录</li>
+        <li>启动应用: <code>npm run dev</code></li>
+        <li>应用将自动加载模型并提供人脸识别功能</li>
+      </ol>
+    </div>
+    
+    <div class="warning">
+      <p><strong>如果无法下载：</strong></p>
+      <ol>
+        <li>尝试运行命令 <code>node download_models.js</code> 自动下载</li>
+        <li>访问 GitHub 原始地址下载：<a href="https://github.com/justadudewhohacks/face-api.js/tree/master/weights" target="_blank" rel="noopener">https://github.com/justadudewhohacks/face-api.js/tree/master/weights</a></li>
+        <li>使用代理或VPN访问国外资源</li>
+      </ol>
+    </div>
+  </div>
+</body>
+</html>
