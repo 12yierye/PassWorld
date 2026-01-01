@@ -203,12 +203,15 @@ const saveEdit = () => {
 }
 
 /* 过渡动画 */
-.modal-enter-active, .modal-leave-active {
+.modal-enter-active {
   transition: all 0.3s ease;
+}
+
+.modal-leave-active {
+  transition: all 0.15s ease;  /* 快速消失 */
 }
 
 .modal-enter-from, .modal-leave-to {
   opacity: 0;
   transform: translateY(-30px);
 }
-</style>
