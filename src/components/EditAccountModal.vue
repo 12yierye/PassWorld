@@ -215,3 +215,4 @@ const saveEdit = () => {
   opacity: 0;
   transform: translateY(-30px);
 }
+</style>
