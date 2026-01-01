@@ -105,8 +105,11 @@ const groupedAccounts = computed(() => {
   <div class="app-container">
     <!-- 中间内容区域 -->
     <div class="main-content">
+      <div v-if="accounts.length === 0" class="empty-state">
+        <h1>空空如也，请添加密码</h1>
+      </div>
       <!-- 显示所有账户 -->
-      <div v-for="(platformGroup, platformName) in groupedAccounts" :key="platformName" class="platform-container">
+      <div v-else v-for="(platformGroup, platformName) in groupedAccounts" :key="platformName" class="platform-container">
         <div class="platform-header">
           <h3 class="platform-title">{{ platformName }}</h3>
           <button class="menu-btn">⋮</button>
@@ -181,8 +184,8 @@ const groupedAccounts = computed(() => {
   flex-direction: column;
   height: 100vh;
   width: 100%;
-  min-height: 400px;
-  min-width: 300px;
+  min-height: 500px;
+  min-width: 800px;
   border: 1px solid #e0e0e0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -192,14 +195,28 @@ const groupedAccounts = computed(() => {
 
 .main-content {
   flex: 1;
-  padding: 20px;
+  padding: 25px;
   overflow: auto;
   background-color: #f8f9fa;
 }
 
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  color: #adb5bd;
+  font-size: 20px;
+}
+
+.empty-state h1 {
+  font-weight: 400;
+  margin: 0;
+}
+
 .platform-container {
   margin-bottom: 20px;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 15px;
   background-color: #ffffff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
@@ -232,7 +249,7 @@ const groupedAccounts = computed(() => {
   margin-bottom: 12px;
   padding: 12px;
   background-color: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .username-header {
@@ -278,9 +295,9 @@ const groupedAccounts = computed(() => {
   border: none;
   font-size: 16px;
   cursor: pointer;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -296,35 +313,28 @@ const groupedAccounts = computed(() => {
 
 .toolbar-bottom {
   display: flex;
-  padding: 15px;
+  padding: 20px;
   background-color: #ffffff;
   border-top: 1px solid #e0e0e0;
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .toolbar-btn {
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  padding: 12px 20px;
+  background-color: #4285f4;
   color: white;
   border: none;
-  border-radius: 30px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 500;
-  box-shadow: 0 4px 10px rgba(37, 117, 252, 0.3);
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease;
   flex: 1;
   max-width: 300px;
   margin: 0 auto;
 }
 
 .toolbar-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(37, 117, 252, 0.4);
-}
-
-.toolbar-btn:active {
-  transform: translateY(0);
+  background-color: #3367d6;
 }
 
 /* 弹窗样式 */
@@ -345,7 +355,7 @@ const groupedAccounts = computed(() => {
 .modal-content {
   background: white;
   padding: 25px;
-  border-radius: 12px;
+  border-radius: 10px;
   width: 90%;
   max-width: 500px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -375,7 +385,7 @@ const groupedAccounts = computed(() => {
   width: 100%;
   padding: 12px 15px;
   border: 2px solid #e1e5eb;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 15px;
   box-sizing: border-box;
   transition: border-color 0.3s;
@@ -398,7 +408,7 @@ const groupedAccounts = computed(() => {
   background: white;
   border: 1px solid #ddd;
   border-top: none;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 6px 6px;
   max-height: 200px;
   overflow-y: auto;
   z-index: 1001;
