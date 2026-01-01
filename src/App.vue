@@ -9,20 +9,52 @@ const presetPlatforms = [
 
 // 状态管理
 const showModal = ref(false);
+const showEditModal = ref(false);
 const platform = ref('');
 const username = ref('');
 const password = ref('');
+const editUsername = ref('');
+const editPassword = ref('');
 const filteredPlatforms = ref([]);
 const showSuggestions = ref(false);
 const accounts = reactive([]);
 const showPasswordMap = ref({}); // 用于跟踪每个密码的显示状态
+const activeMenuId = ref(null); // 跟踪当前激活的菜单
+const editingAccountId = ref(null); // 跟踪正在编辑的账户ID
 
-// 过滤预设平台
+// 过滤预设平台，按相似度排序
 const filterPlatforms = () => {
   if (platform.value) {
-    filteredPlatforms.value = presetPlatforms.filter(item => 
-      item.toLowerCase().includes(platform.value.toLowerCase())
-    );
+    const input = platform.value.toLowerCase();
+    
+    // 按相似度排序：首字母匹配 > 包含在开头 > 包含在中间 > 其他
+    filteredPlatforms.value = [...presetPlatforms].sort((a, b) => {
+      const aLower = a.toLowerCase();
+      const bLower = b.toLowerCase();
+      
+      // 首字母完全匹配
+      const aStartsWith = aLower.startsWith(input) ? 1 : 0;
+      const bStartsWith = bLower.startsWith(input) ? 1 : 0;
+      
+      if (aStartsWith !== bStartsWith) {
+        return bStartsWith - aStartsWith; // 首字母匹配的优先
+      }
+      
+      // 如果都不是首字母匹配，比较是否包含
+      const aIncludes = aLower.includes(input) ? 1 : 0;
+      const bIncludes = bLower.includes(input) ? 1 : 0;
+      
+      if (aIncludes !== bIncludes) {
+        return bIncludes - aIncludes; // 包含的优先
+      }
+      
+      // 都包含的情况下，比较位置，越靠前越优先
+      const aIndex = aLower.indexOf(input);
+      const bIndex = bLower.indexOf(input);
+      
+      return aIndex - bIndex;
+    });
+    
     showSuggestions.value = filteredPlatforms.value.length > 0;
   } else {
     filteredPlatforms.value = [];
@@ -62,6 +94,28 @@ const deleteAccount = (id) => {
   if (index !== -1) {
     accounts.splice(index, 1);
   }
+  activeMenuId.value = null; // 关闭菜单
+};
+
+// 开始编辑账户
+const startEdit = (account) => {
+  editingAccountId.value = account.id;
+  editUsername.value = account.username;
+  editPassword.value = account.password;
+  showEditModal.value = true;
+  activeMenuId.value = null; // 关闭菜单
+};
+
+// 保存编辑
+const saveEdit = () => {
+  if (editingAccountId.value) {
+    const account = accounts.find(acc => acc.id === editingAccountId.value);
+    if (account) {
+      account.username = editUsername.value;
+      account.password = editPassword.value;
+    }
+    showEditModal.value = false;
+  }
 };
 
 // 切换密码显示状态
@@ -79,6 +133,11 @@ const getPasswordDisplay = (id, password) => {
     return password;
   }
   return '••••••••';
+};
+
+// 切换菜单显示
+const toggleMenu = (id) => {
+  activeMenuId.value = activeMenuId.value === id ? null : id;
 };
 
 // 按平台和用户名分组账户
@@ -112,19 +171,33 @@ const groupedAccounts = computed(() => {
       <div v-else v-for="(platformGroup, platformName) in groupedAccounts" :key="platformName" class="platform-container">
         <div class="platform-header">
           <h3 class="platform-title">{{ platformName }}</h3>
-          <button class="menu-btn">⋮</button>
         </div>
         
         <div v-for="(usernameGroup, username) in platformGroup" :key="username" class="username-container">
           <div class="username-header">
             <h4 class="username-title">{{ username }}</h4>
-            <button class="menu-btn">⋮</button>
+            <button 
+              @click="toggleMenu(usernameGroup[0].id)" 
+              class="menu-btn"
+              :class="{ 'active': activeMenuId === usernameGroup[0].id }"
+            >
+              ⋮
+            </button>
+            
+            <!-- 菜单 -->
+            <div 
+              v-if="activeMenuId === usernameGroup[0].id" 
+              class="menu-dropdown"
+              @click="activeMenuId = null"
+            >
+              <button @click.stop="startEdit(usernameGroup[0])" class="menu-option">编辑</button>
+              <button @click.stop="deleteAccount(usernameGroup[0].id)" class="menu-option">删除</button>
+            </div>
           </div>
           
           <div v-for="account in usernameGroup" :key="account.id" class="account-item">
             <span class="password-display">{{ getPasswordDisplay(account.id, account.password) }}</span>
             <button @click="togglePasswordVisibility(account.id)" class="eye-btn">👁</button>
-            <button class="menu-btn">⋮</button>
           </div>
         </div>
       </div>
@@ -172,6 +245,25 @@ const groupedAccounts = computed(() => {
         <div class="modal-buttons">
           <button @click="addAccount" class="confirm-btn">确认</button>
           <button @click="showModal = false" class="cancel-btn">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 编辑弹窗 -->
+    <div v-if="showEditModal" class="modal-overlay">
+      <div class="modal-content">
+        <h3>编辑账户</h3>
+        <div class="input-group">
+          <label>用户名</label>
+          <input v-model="editUsername" placeholder="输入用户名" class="input-field" />
+        </div>
+        <div class="input-group">
+          <label>密码</label>
+          <input v-model="editPassword" type="password" placeholder="输入密码" class="input-field" />
+        </div>
+        <div class="modal-buttons">
+          <button @click="saveEdit" class="confirm-btn">确认</button>
+          <button @click="showEditModal = false" class="cancel-btn">取消</button>
         </div>
       </div>
     </div>
@@ -245,6 +337,7 @@ const groupedAccounts = computed(() => {
 }
 
 .username-container {
+  position: relative;
   margin-left: 10px;
   margin-bottom: 12px;
   padding: 12px;
@@ -279,7 +372,6 @@ const groupedAccounts = computed(() => {
 
 .account-item:hover {
   background-color: #f1f5f9;
-  transform: translateY(-1px);
 }
 
 .password-display {
@@ -290,7 +382,7 @@ const groupedAccounts = computed(() => {
   letter-spacing: 1px;
 }
 
-.eye-btn, .menu-btn {
+.eye-btn {
   background: none;
   border: none;
   font-size: 16px;
@@ -306,9 +398,96 @@ const groupedAccounts = computed(() => {
   transition: all 0.2s ease;
 }
 
-.eye-btn:hover, .menu-btn:hover {
+.eye-btn:hover {
   background-color: #e9ecef;
   color: #495057;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  color: #6c757d;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.menu-btn::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 8px;
+  background: inherit;
+  filter: blur(8px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+.menu-btn:hover {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.menu-btn.active,
+.menu-btn:hover {
+  animation: glow 0.5s ease-in-out infinite alternate;
+}
+
+.menu-btn.active::after,
+.menu-btn:hover::after {
+  opacity: 0.6;
+  transform: scale(1.2);
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 4px rgba(108, 117, 125, 0.4);
+  }
+  to {
+    box-shadow: 0 0 12px rgba(108, 117, 125, 0.8);
+  }
+}
+
+.menu-dropdown {
+  position: absolute;
+  right: 12px;
+  top: 40px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  min-width: 100px;
+  padding: 5px 0;
+}
+
+.menu-option {
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #495057;
+  transition: background-color 0.2s;
+}
+
+.menu-option:hover {
+  background-color: #f8f9fa;
 }
 
 .toolbar-bottom {
@@ -439,11 +618,11 @@ const groupedAccounts = computed(() => {
 .confirm-btn, .cancel-btn {
   padding: 12px 25px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 15px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
   width: 120px;
 }
 
@@ -459,12 +638,10 @@ const groupedAccounts = computed(() => {
 
 .confirm-btn:hover {
   background-color: #27ae60;
-  transform: translateY(-2px);
 }
 
 .cancel-btn:hover {
   background-color: #7f8c8d;
-  transform: translateY(-2px);
 }
 
 @keyframes fadeIn {
