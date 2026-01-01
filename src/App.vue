@@ -209,64 +209,68 @@ const groupedAccounts = computed(() => {
     </div>
 
     <!-- 添加弹窗 -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal-content">
-        <h3>添加新账户</h3>
-        <div class="input-group">
-          <label>平台名称</label>
-          <div class="autocomplete-container">
-            <input 
-              v-model="platform" 
-              @input="filterPlatforms" 
-              @focus="filterPlatforms"
-              @keyup.enter="selectPreset(filteredPlatforms[0])"
-              placeholder="输入平台名称"
-              class="input-field"
-            />
-            <ul v-if="showSuggestions" class="suggestions-list">
-              <li 
-                v-for="preset in filteredPlatforms" 
-                :key="preset"
-                @click="selectPreset(preset)"
-              >
-                {{ preset }}
-              </li>
-            </ul>
+    <Transition name="modal">
+      <div v-if="showModal" class="modal-overlay">
+        <div class="modal-content">
+          <h3>添加新账户</h3>
+          <div class="input-group">
+            <label>平台名称</label>
+            <div class="autocomplete-container">
+              <input 
+                v-model="platform" 
+                @input="filterPlatforms" 
+                @focus="filterPlatforms"
+                @keyup.enter="selectPreset(filteredPlatforms[0])"
+                placeholder="输入平台名称"
+                class="input-field"
+              />
+              <ul v-if="showSuggestions" class="suggestions-list">
+                <li 
+                  v-for="preset in filteredPlatforms" 
+                  :key="preset"
+                  @click="selectPreset(preset)"
+                >
+                  {{ preset }}
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>用户名</label>
+            <input v-model="username" placeholder="输入用户名" class="input-field" />
+          </div>
+          <div class="input-group">
+            <label>密码</label>
+            <input v-model="password" type="password" placeholder="输入密码" class="input-field" />
+          </div>
+          <div class="modal-buttons">
+            <button @click="addAccount" class="confirm-btn">确认</button>
+            <button @click="showModal = false" class="cancel-btn">取消</button>
           </div>
         </div>
-        <div class="input-group">
-          <label>用户名</label>
-          <input v-model="username" placeholder="输入用户名" class="input-field" />
-        </div>
-        <div class="input-group">
-          <label>密码</label>
-          <input v-model="password" type="password" placeholder="输入密码" class="input-field" />
-        </div>
-        <div class="modal-buttons">
-          <button @click="addAccount" class="confirm-btn">确认</button>
-          <button @click="showModal = false" class="cancel-btn">取消</button>
-        </div>
       </div>
-    </div>
+    </Transition>
 
     <!-- 编辑弹窗 -->
-    <div v-if="showEditModal" class="modal-overlay">
-      <div class="modal-content">
-        <h3>编辑账户</h3>
-        <div class="input-group">
-          <label>用户名</label>
-          <input v-model="editUsername" placeholder="输入用户名" class="input-field" />
-        </div>
-        <div class="input-group">
-          <label>密码</label>
-          <input v-model="editPassword" type="password" placeholder="输入密码" class="input-field" />
-        </div>
-        <div class="modal-buttons">
-          <button @click="saveEdit" class="confirm-btn">确认</button>
-          <button @click="showEditModal = false" class="cancel-btn">取消</button>
+    <Transition name="modal">
+      <div v-if="showEditModal" class="modal-overlay">
+        <div class="modal-content">
+          <h3>编辑账户</h3>
+          <div class="input-group">
+            <label>用户名</label>
+            <input v-model="editUsername" placeholder="输入用户名" class="input-field" />
+          </div>
+          <div class="input-group">
+            <label>密码</label>
+            <input v-model="editPassword" type="password" placeholder="输入密码" class="input-field" />
+          </div>
+          <div class="modal-buttons">
+            <button @click="saveEdit" class="confirm-btn">确认</button>
+            <button @click="showEditModal = false" class="cancel-btn">取消</button>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
@@ -528,7 +532,6 @@ const groupedAccounts = computed(() => {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease;
 }
 
 .modal-content {
@@ -538,7 +541,6 @@ const groupedAccounts = computed(() => {
   width: 90%;
   max-width: 500px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  animation: slideIn 0.3s ease;
 }
 
 .modal-content h3 {
@@ -644,19 +646,13 @@ const groupedAccounts = computed(() => {
   background-color: #7f8c8d;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* 过渡动画 */
+.modal-enter-active, .modal-leave-active {
+  transition: all 0.3s ease;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.modal-enter-from, .modal-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
 }
 </style>
