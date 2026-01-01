@@ -1,8 +1,12 @@
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import AccountsList from './components/AccountsList.vue';
 import AddAccountModal from './components/AddAccountModal.vue';
 import EditAccountModal from './components/EditAccountModal.vue';
+import Login from './components/Login.vue';
+
+// 检查用户是否已登录
+const isLoggedIn = ref(false);
 
 // 状态管理
 const showModal = ref(false);
@@ -11,6 +15,14 @@ const accounts = reactive([]);
 const showPasswordMap = ref({}); // 用于跟踪每个密码的显示状态
 const activeMenuId = ref(null); // 跟踪当前激活的菜单
 const editingAccountId = ref(null); // 跟踪正在编辑的账户ID
+
+// 检查登录状态
+onMounted(() => {
+  const currentUsername = localStorage.getItem('currentUsername');
+  if (currentUsername) {
+    isLoggedIn.value = true;
+  }
+});
 
 // 获取正在编辑的账户
 const editingAccount = computed(() => {
@@ -71,10 +83,28 @@ const togglePasswordVisibility = (id) => {
 const toggleMenu = (id) => {
   activeMenuId.value = activeMenuId.value === id ? null : id;
 };
+
+// 退出登录
+const logout = () => {
+  localStorage.removeItem('currentUsername');
+  isLoggedIn.value = false;
+};
 </script>
 
 <template>
-  <div class="app-container">
+  <!-- 登录界面 -->
+  <div v-if="!isLoggedIn">
+    <Login />
+  </div>
+  
+  <!-- 主应用界面 -->
+  <div v-else class="app-container">
+    <!-- 顶部工具栏 -->
+    <div class="top-toolbar">
+      <span>欢迎, {{ localStorage.getItem('currentUsername') }}</span>
+      <button @click="logout" class="logout-btn">退出登录</button>
+    </div>
+
     <!-- 账户列表组件 -->
     <AccountsList
       :accounts="accounts"
@@ -102,7 +132,7 @@ const toggleMenu = (id) => {
     <EditAccountModal
       :showEditModal="showEditModal"
       :editingAccount="editingAccount"
-      @update:showEditModal="showEditModal = $event"
+      @update:showModal="showEditModal = $event"
       @saveEdit="saveEdit"
     />
   </div>
@@ -121,6 +151,28 @@ const toggleMenu = (id) => {
   overflow: hidden;
   background-color: #f8f9fa;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.top-toolbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  font-weight: 500;
+}
+
+.logout-btn {
+  padding: 8px 16px;
+  background-color: #ea4335;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #d33b2c;
 }
 
 .toolbar-bottom {
