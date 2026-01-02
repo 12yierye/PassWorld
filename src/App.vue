@@ -7,6 +7,7 @@ import Login from './components/Login.vue';
 
 // 检查用户是否已登录
 const isLoggedIn = ref(false);
+const currentUsername = ref('');
 
 // 状态管理
 const showModal = ref(false);
@@ -18,9 +19,10 @@ const editingAccountId = ref(null); // 跟踪正在编辑的账户ID
 
 // 检查登录状态
 onMounted(() => {
-  const currentUsername = localStorage.getItem('currentUsername');
-  if (currentUsername) {
+  const username = localStorage.getItem('currentUsername');
+  if (username) {
     isLoggedIn.value = true;
+    currentUsername.value = username;
   }
 });
 
@@ -88,6 +90,7 @@ const toggleMenu = (id) => {
 const logout = () => {
   localStorage.removeItem('currentUsername');
   isLoggedIn.value = false;
+  currentUsername.value = '';
 };
 </script>
 
@@ -101,7 +104,7 @@ const logout = () => {
   <div v-else class="app-container">
     <!-- 顶部工具栏 -->
     <div class="top-toolbar">
-      <span>欢迎, {{ localStorage.getItem('currentUsername') }}</span>
+      <span>欢迎, {{ currentUsername }}</span>
       <button @click="logout" class="logout-btn">退出登录</button>
     </div>
 
