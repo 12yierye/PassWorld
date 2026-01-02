@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "electron:dev": "echo 'Electron dev is not available in this environment, use: npm run build && node build-electron.js'",
-    "electron:build": "node build-electron.js",
+    "electron:build": "set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ && node build-electron.js",
     "electron:dist": "node build-electron.js"
   },
   "dependencies": {
