@@ -1,7 +1,7 @@
 {
   "name": "passworld",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.0.1",
   "type": "module",
   "main": "electron/main.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "electron:dev": "echo 'Electron dev is not available in this environment, use: npm run build && node build-electron.js'",
-    "electron:build": "set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ && node build-electron.js",
+    "electron:build": "set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/&& set ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/&& node build-electron.js",
     "electron:dist": "node build-electron.js"
   },
   "dependencies": {
