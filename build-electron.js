@@ -1,5 +1,5 @@
-const { build } = require('electron-builder');
-const { execSync } = require('child_process');
+import { build } from 'electron-builder';
+import { execSync } from 'child_process';
 
 // 首先构建Vue项目
 console.log('Building Vue project...');
