@@ -7,10 +7,21 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Dependencies
+node_modules/
+
+# Production builds
+dist/
+dist-ssr/
+dist-electron/
+
+# Large model files (if not needed in repo)
+public/models/
+
+# OS generated files
+*.sw?
+*.swo
+*~
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +33,29 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables
+.env*.local
+
+# Build outputs for electron
+electron-builder-builder-debug.yml
+electron-builder-builder-effective-config.yaml
+electron-builder-builder-effective-config.yaml.lock
+electron-builder-dist/
+electron-builder-builder/
+electron-builder-builds/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Large files (size > 100MB)
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+*.dmg
+*.exe
