@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import { join, dirname, resolve, existsSync } from 'path';
 import { fileURLToPath } from 'url';
+import { readFileSync } from 'fs';
 
 // 实现单实例锁，确保应用只能运行一个实例
 const gotTheLock = app.requestSingleInstanceLock();
@@ -21,8 +22,8 @@ const createWindow = () => {
     minWidth: 800,  // 根据UI设计规范设置最小宽度
     minHeight: 500, // 根据UI设计规范设置最小高度
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
+      nodeIntegration: true,  // 启用nodeIntegration以支持Vue
+      contextIsolation: false, // 由于需要支持Vue，暂时关闭上下文隔离
       preload: join(__dirname, 'preload.js')
     },
     icon: join(__dirname, '../public/icon.png'), // 如果有图标文件的话
@@ -132,13 +133,8 @@ const createWindow = () => {
       });
     }
   } else {
-    // 开发环境：加载开发服务器
-    // 先尝试加载开发服务器
-    win.loadURL('http://localhost:5173').catch(err => {
-      console.log('Failed to connect to dev server, trying test page instead');
-      // 如果连接开发服务器失败，加载测试页面
-      win.loadFile(join(__dirname, '../public/test.html'));
-    });
+    // 开发环境：直接加载应用主文件
+    win.loadFile(join(__dirname, '../../index.html'));
   }
 
   return win;
@@ -173,4 +169,15 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+// IPC通信处理
+ipcMain.handle('dialog:openFile', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openFile'],
+    filters: [
+      { name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'gif'] }
+    ]
+  });
+  return result;
 });

@@ -24,7 +24,24 @@ onMounted(() => {
     isLoggedIn.value = true;
     currentUsername.value = username;
   }
+  
+  // 加载账户数据
+  const storedAccounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+  storedAccounts.forEach(account => accounts.push(account));
 });
+
+// 监听登录状态变化
+const handleLogin = (username) => {
+  isLoggedIn.value = true;
+  currentUsername.value = username;
+};
+
+// 监听登出状态变化
+const handleLogout = () => {
+  isLoggedIn.value = false;
+  currentUsername.value = '';
+  localStorage.removeItem('currentUsername');
+};
 
 // 获取正在编辑的账户
 const editingAccount = computed(() => {
@@ -44,6 +61,16 @@ const addAccount = ({ platform, username, password }) => {
   };
   
   accounts.push(newAccount);
+  saveAccounts();
+};
+
+// 更新账户
+const updateAccount = (updatedAccount) => {
+  const index = accounts.findIndex(acc => acc.id === updatedAccount.id);
+  if (index !== -1) {
+    accounts[index] = { ...updatedAccount };
+    saveAccounts();
+  }
 };
 
 // 删除账户
@@ -51,156 +78,162 @@ const deleteAccount = (id) => {
   const index = accounts.findIndex(acc => acc.id === id);
   if (index !== -1) {
     accounts.splice(index, 1);
+    saveAccounts();
   }
-  activeMenuId.value = null; // 关闭菜单
 };
 
-// 开始编辑账户
+// 保存账户到本地存储
+const saveAccounts = () => {
+  // 创建一个不包含响应性的副本
+  const plainAccounts = accounts.map(acc => ({...acc}));
+  localStorage.setItem('accounts', JSON.stringify(plainAccounts));
+};
+
+// 切换密码可见性
+const togglePasswordVisibility = (id) => {
+  showPasswordMap.value = {
+    ...showPasswordMap.value,
+    [id]: !showPasswordMap.value[id]
+  };
+};
+
+// 打开编辑模态框
 const startEdit = (account) => {
   editingAccountId.value = account.id;
   showEditModal.value = true;
-  activeMenuId.value = null; // 关闭菜单
+  activeMenuId.value = null;
 };
 
-// 保存编辑
-const saveEdit = ({ id, username, password }) => {
-  const account = accounts.find(acc => acc.id === id);
-  if (account) {
-    account.username = username;
-    account.password = password;
-  }
+// 关闭编辑模态框
+const closeEditModal = () => {
   showEditModal.value = false;
+  editingAccountId.value = null;
 };
 
-// 切换密码显示状态
-const togglePasswordVisibility = (id) => {
-  if (showPasswordMap.value[id]) {
-    showPasswordMap.value[id] = false;
-  } else {
-    showPasswordMap.value[id] = true;
-  }
-};
-
-// 切换菜单显示
+// 切换菜单
 const toggleMenu = (id) => {
   activeMenuId.value = activeMenuId.value === id ? null : id;
 };
 
-// 退出登录
-const logout = () => {
-  localStorage.removeItem('currentUsername');
-  isLoggedIn.value = false;
-  currentUsername.value = '';
+// 保存编辑的账户
+const saveEditedAccount = (updatedAccount) => {
+  updateAccount(updatedAccount);
+  closeEditModal();
 };
 </script>
 
 <template>
-  <!-- 登录界面 -->
-  <div v-if="!isLoggedIn">
-    <Login />
-  </div>
-  
-  <!-- 主应用界面 -->
-  <div v-else class="app-container">
-    <!-- 顶部工具栏 -->
-    <div class="top-toolbar">
-      <span>欢迎, {{ currentUsername }}</span>
-      <button @click="logout" class="logout-btn">退出登录</button>
-    </div>
-
-    <!-- 账户列表组件 -->
-    <AccountsList
-      :accounts="accounts"
-      :showPasswordMap="showPasswordMap"
-      :activeMenuId="activeMenuId"
-      @togglePasswordVisibility="togglePasswordVisibility"
-      @deleteAccount="deleteAccount"
-      @toggleMenu="toggleMenu"
-      @startEdit="startEdit"
-    />
-
-    <!-- 下方工具栏 -->
-    <div class="toolbar-bottom">
-      <button @click="showModal = true" class="toolbar-btn">添加</button>
-    </div>
-
-    <!-- 添加弹窗 -->
-    <AddAccountModal
-      :showModal="showModal"
-      @update:showModal="showModal = $event"
-      @addAccount="addAccount"
-    />
-
-    <!-- 编辑弹窗 -->
-    <EditAccountModal
-      :showEditModal="showEditModal"
-      :editingAccount="editingAccount"
-      @update:showModal="showEditModal = $event"
-      @saveEdit="saveEdit"
+  <div class="app-container">
+    <header v-if="isLoggedIn" class="header">
+      <h1>PassWorld - 密码管理器</h1>
+      <div class="user-info">
+        <span>欢迎, {{ currentUsername }}</span>
+        <button @click="handleLogout" class="logout-btn">登出</button>
+      </div>
+    </header>
+    
+    <main v-if="isLoggedIn" class="main">
+      <div class="toolbar">
+        <button @click="showModal = true" class="add-btn">+ 添加账户</button>
+      </div>
+      
+      <AccountsList 
+        :accounts="accounts"
+        :showPasswordMap="showPasswordMap"
+        :activeMenuId="activeMenuId"
+        @togglePasswordVisibility="togglePasswordVisibility"
+        @deleteAccount="deleteAccount"
+        @toggleMenu="toggleMenu"
+        @startEdit="startEdit"
+      />
+      
+      <AddAccountModal 
+        v-if="showModal"
+        @add-account="addAccount"
+        @close="showModal = false"
+      />
+      
+      <EditAccountModal
+        v-if="showEditModal && editingAccount"
+        :account="editingAccount"
+        @update-account="saveEditedAccount"
+        @close="closeEditModal"
+      />
+    </main>
+    
+    <Login 
+      v-else 
+      @login="handleLogin"
+      @logout="handleLogout"
     />
   </div>
 </template>
 
-<style scoped>
+<style>
 .app-container {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: 100%;
-  min-height: 500px;
-  min-width: 800px;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  background-color: #f8f9fa;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.top-toolbar {
+.header {
+  background-color: #2c3e50;
+  color: white;
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
-  padding: 15px 20px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e0e0e0;
-  font-weight: 500;
+  align-items: center;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .logout-btn {
-  padding: 8px 16px;
-  background-color: #ea4335;
+  background-color: #e74c3c;
   color: white;
   border: none;
+  padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .logout-btn:hover {
-  background-color: #d33b2c;
+  background-color: #c0392b;
 }
 
-.toolbar-bottom {
-  display: flex;
-  padding: 20px;
-  background-color: #ffffff;
-  border-top: 1px solid #e0e0e0;
+.main {
+  flex: 1;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
-.toolbar-btn {
-  padding: 12px 20px;
-  background-color: #4285f4;
+.toolbar {
+  margin-bottom: 1rem;
+  text-align: right;
+}
+
+.add-btn {
+  background-color: #3498db;
   color: white;
   border: none;
-  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
-  flex: 1;
-  max-width: 300px;
-  margin: 0 auto;
+  font-size: 1rem;
 }
 
-.toolbar-btn:hover {
-  background-color: #3367d6;
+.add-btn:hover {
+  background-color: #2980b9;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f5f5;
 }
 </style>
