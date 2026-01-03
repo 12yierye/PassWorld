@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
-import { join } from 'path';
-import { URL } from 'url';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 // 实现单实例锁，确保应用只能运行一个实例
 const gotTheLock = app.requestSingleInstanceLock();
@@ -10,6 +10,10 @@ if (!gotTheLock) {
   app.quit();
 }
 
+// 获取当前文件的目录路径
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const createWindow = () => {
   const options = {
     width: 1200,
@@ -17,17 +21,60 @@ const createWindow = () => {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: join(app.getAppPath(), 'electron', 'preload.js')
+      preload: join(__dirname, 'preload.js')
     },
-    icon: join(__dirname, '../public/icon.png') // 如果有图标文件的话
+    icon: join(__dirname, '../public/icon.png'), // 如果有图标文件的话
+    show: false // 先不显示窗口，等页面加载完成后再显示
   };
 
   const win = new BrowserWindow(options);
 
+  // 设置页面加载事件监听器
+  win.webContents.on('did-finish-load', () => {
+    console.log('Page finished loading');
+    if (!app.isPackaged) {
+      win.webContents.openDevTools(); // 开发环境下自动打开开发者工具
+    }
+    win.show(); // 页面加载完成后显示窗口
+  });
+
+  win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error(`Page load failed: ${errorCode} - ${errorDescription}`);
+    // 在开发环境中，如果无法连接到开发服务器，显示错误信息
+    if (!app.isPackaged) {
+      win.loadFile(join(__dirname, '../public/simple-download.html')).then(() => {
+        win.webContents.executeJavaScript(`
+          document.body.innerHTML = '<div style="font-family: Arial, sans-serif; padding: 20px; text-align: center;">
+            <h2>应用启动失败</h2>
+            <p>无法连接到开发服务器 http://localhost:5173</p>
+            <p>请确保先在另一个终端运行: <code style="background: #eee; padding: 5px;">npm run dev</code></p>
+            <p>然后再启动Electron应用</p>
+          </div>';
+        `);
+        win.show();
+      });
+    } else {
+      // 生产环境中加载失败时显示错误信息
+      win.loadFile(join(__dirname, '../public/simple-download.html')).then(() => {
+        win.webContents.executeJavaScript(`
+          document.body.innerHTML = '<div style="font-family: Arial, sans-serif; padding: 20px; text-align: center;">
+            <h2>应用启动失败</h2>
+            <p>无法加载应用界面</p>
+            <p>错误代码: ${errorCode}</p>
+            <p>错误描述: ${errorDescription}</p>
+          </div>';
+        `);
+        win.show();
+      });
+    }
+  });
+
   // 根据环境决定加载的URL
   if (app.isPackaged) {
     // 生产环境：加载构建后的文件
-    win.loadFile(join(__dirname, '../dist/index.html'));
+    // 使用 app.getAppPath() 获取正确的路径
+    const indexPath = join(app.getAppPath(), 'dist', 'index.html');
+    win.loadFile(indexPath);
   } else {
     // 开发环境：加载开发服务器
     win.loadURL('http://localhost:5173');

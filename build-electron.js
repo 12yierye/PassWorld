@@ -11,7 +11,13 @@ build({
   config: {
     directories: {
       output: 'dist-electron'
-    }
+    },
+    extraResources: [
+      {
+        from: 'dist/',
+        to: 'dist/'
+      }
+    ]
   }
 }).then(() => {
   console.log('Electron app built successfully!');
