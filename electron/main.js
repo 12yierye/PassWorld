@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
-import { join, dirname, resolve } from 'path';
+import { join, dirname, resolve, existsSync } from 'path';
 import { fileURLToPath } from 'url';
 
 // 实现单实例锁，确保应用只能运行一个实例
@@ -44,20 +44,24 @@ const createWindow = () => {
     console.error(`Page load failed: ${errorCode} - ${errorDescription}`);
     // 在开发环境中，如果无法连接到开发服务器，显示错误信息
     if (!app.isPackaged) {
-      win.loadFile(join(__dirname, '../public/simple-download.html')).then(() => {
+      win.loadFile(join(__dirname, '../public/test.html')).then(() => {
         win.webContents.executeJavaScript(`
           document.body.innerHTML = '<div style="font-family: Arial, sans-serif; padding: 20px; text-align: center;">
             <h2>应用启动失败</h2>
             <p>无法连接到开发服务器 http://localhost:5173</p>
+            <p>错误代码: ${errorCode}</p>
+            <p>错误描述: ${errorDescription}</p>
             <p>请确保先在另一个终端运行: <code style="background: #eee; padding: 5px;">npm run dev</code></p>
             <p>然后再启动Electron应用</p>
           </div>';
         `);
         win.show();
+      }).catch(err => {
+        console.error('Failed to load test page:', err);
       });
     } else {
       // 生产环境中加载失败时显示错误信息
-      win.loadFile(join(__dirname, '../public/simple-download.html')).then(() => {
+      win.loadFile(join(__dirname, '../public/test.html')).then(() => {
         win.webContents.executeJavaScript(`
           document.body.innerHTML = '<div style="font-family: Arial, sans-serif; padding: 20px; text-align: center;">
             <h2>应用启动失败</h2>
@@ -67,39 +71,74 @@ const createWindow = () => {
           </div>';
         `);
         win.show();
+      }).catch(err => {
+        console.error('Failed to load error page:', err);
       });
     }
   });
 
   // 根据环境决定加载的URL
   if (app.isPackaged) {
-    // 生产环境：加载构建后的文件
-    // 使用 app.getAppPath() 获取正确的路径
-    const indexPath = join(process.resourcesPath, 'dist', 'index.html');
-    // 检查文件是否存在，如果不存在则尝试其他可能的路径
-    win.loadFile(indexPath).catch(err => {
-      console.error('Failed to load main file:', err);
-      // 尝试使用不同的路径
-      const fallbackPath = join(__dirname, '../dist/index.html');
-      win.loadFile(fallbackPath).catch(fallbackErr => {
-        console.error('Fallback path also failed:', fallbackErr);
-        // 如果都失败了，显示错误页面
-        win.loadFile(join(__dirname, '../public/simple-download.html')).then(() => {
-          win.webContents.executeJavaScript(`
-            document.body.innerHTML = '<div style="font-family: Arial, sans-serif; padding: 20px; text-align: center;">
-              <h2>应用启动失败</h2>
-              <p>无法找到应用界面文件</p>
-              <p>请确认应用是否完整安装</p>
-              <p>错误详情: ${fallbackErr.message}</p>
-            </div>';
-          `);
-          win.show();
-        });
+    // 生产环境：尝试加载构建后的文件
+    console.log('Packaged app - trying to load built files');
+    
+    // 尝试多种可能的路径
+    const possiblePaths = [
+      join(process.resourcesPath, 'dist', 'index.html'),  // 打包后资源路径
+      join(app.getAppPath(), 'dist', 'index.html'),       // 应用路径
+      join(__dirname, '../dist/index.html'),              // 相对路径
+      join(__dirname, '../public/test.html'),             // 测试页面路径
+    ];
+    
+    console.log('Possible paths:', possiblePaths);
+    
+    let loaded = false;
+    for (const path of possiblePaths) {
+      console.log('Trying path:', path);
+      if (existsSync(path)) {
+        console.log('Path exists, loading:', path);
+        try {
+          win.loadFile(path);
+          loaded = true;
+          break;
+        } catch (err) {
+          console.error('Failed to load from path:', path, err);
+        }
+      } else {
+        console.log('Path does not exist:', path);
+      }
+    }
+    
+    if (!loaded) {
+      // 如果所有路径都失败，创建一个简单的测试页面
+      console.log('All paths failed, creating test page');
+      win.loadFile(join(__dirname, '../public/test.html')).then(() => {
+        win.webContents.executeJavaScript(`
+          document.body.innerHTML = '<div style="font-family: Arial, sans-serif; padding: 20px; text-align: center;">
+            <h2>应用启动失败</h2>
+            <p>无法找到应用界面文件</p>
+            <p>请确认应用是否完整安装</p>
+            <p>可能的原因:</p>
+            <ul style="text-align:left; display: inline-block;">
+              <li>构建时未包含dist目录</li>
+              <li>Electron打包过程出错</li>
+              <li>文件路径配置不正确</li>
+            </ul>
+          </div>';
+        `);
+        win.show();
+      }).catch(err => {
+        console.error('Failed to load fallback test page:', err);
       });
-    });
+    }
   } else {
     // 开发环境：加载开发服务器
-    win.loadURL('http://localhost:5173');
+    // 先尝试加载开发服务器
+    win.loadURL('http://localhost:5173').catch(err => {
+      console.log('Failed to connect to dev server, trying test page instead');
+      // 如果连接开发服务器失败，加载测试页面
+      win.loadFile(join(__dirname, '../public/test.html'));
+    });
   }
 
   return win;

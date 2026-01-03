@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "electron:dev": "node vite-electron-dev.js",
-    "electron:build": "set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/&& set ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/&& electron-builder",
+    "electron:build": "cross-env ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ electron-builder",
     "electron:dist": "node build-electron.js"
   },
   "dependencies": {
@@ -22,7 +22,8 @@
     "electron": "^28.2.0",
     "electron-builder": "^24.9.1",
     "vite": "^7.2.4",
-    "wait-on": "^7.2.0"
+    "wait-on": "^7.2.0",
+    "cross-env": "^7.0.3"
   },
   "build": {
     "appId": "com.example.passworld",
