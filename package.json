@@ -3,36 +3,20 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "main": "electron/main.js",
+  "main": "src/main/main.js",
   "scripts": {
+    "start": "electron .",
     "dev": "electron .",
-    "build": "vite build",
-    "preview": "vite preview",
+    "build": "electron-builder",
     "electron:dev": "electron .",
-    "electron:build": "npm run build && npx --package electron-builder --package cross-env cross-env ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ electron-builder",
-    "electron:dist": "node build-electron.js"
-  },
-  "postinstall": "electron-builder install-app-deps",
-  "config": {
-    "electron_builder": {
-      "npm_rebuild": false,
-      "electronDownload": {
-        "mirror": "https://npmmirror.com/mirrors/electron/"
-      }
-    }
+    "electron:build": "electron-builder"
   },
   "dependencies": {
-    "face-api.js": "^0.22.2",
-    "vue": "^3.5.24"
+    "face-api.js": "^0.22.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.1",
-    "concurrently": "^8.2.2",
     "electron": "^28.2.0",
-    "electron-builder": "^24.9.1",
-    "vite": "^7.2.4",
-    "wait-on": "^7.2.0",
-    "cross-env": "^7.0.3"
+    "electron-builder": "^24.9.1"
   },
   "build": {
     "appId": "com.example.passworld",
@@ -41,31 +25,23 @@
       "output": "dist-electron"
     },
     "files": [
-      "dist/**/*",
-      "electron/**/*",
+      "src/**/*",
+      "assets/**/*",
       "node_modules/**/*",
       "package.json",
-      "index.html",
-      "src/**/*",
-      "public/**/*"
-    ],
-    "extraResources": [
-      {
-        "from": "dist/",
-        "to": "dist/"
-      }
+      "index.html"
     ],
     "win": {
       "target": "nsis",
-      "icon": "public/icon.ico"
+      "icon": "assets/Normal Locker.ico"
     },
     "mac": {
       "target": "dmg",
-      "icon": "public/icon.icns"
+      "icon": "assets/Normal Locker.icns"
     },
     "linux": {
       "target": "AppImage",
-      "icon": "public/icon.png"
+      "icon": "assets/Normal Locker.png"
     }
   }
 }
