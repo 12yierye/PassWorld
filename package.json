@@ -12,6 +12,15 @@
     "electron:build": "npm run build && npx --package electron-builder --package cross-env cross-env ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ electron-builder",
     "electron:dist": "node build-electron.js"
   },
+  "postinstall": "electron-builder install-app-deps",
+  "config": {
+    "electron_builder": {
+      "npm_rebuild": false,
+      "electronDownload": {
+        "mirror": "https://npmmirror.com/mirrors/electron/"
+      }
+    }
+  },
   "dependencies": {
     "face-api.js": "^0.22.2",
     "vue": "^3.5.24"
