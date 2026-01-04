@@ -7,9 +7,7 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
-    "build": "electron-builder",
-    "electron:dev": "electron .",
-    "electron:build": "electron-builder"
+    "build": "electron-builder"
   },
   "dependencies": {
     "face-api.js": "^0.22.2"
@@ -29,7 +27,8 @@
       "assets/**/*",
       "node_modules/**/*",
       "package.json",
-      "index.html"
+      "login.html",
+      "mainPage.html"
     ],
     "win": {
       "target": "nsis",

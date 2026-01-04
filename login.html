@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PassWorld - Login</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/login.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>PassWorld</h1>
+      <div id="user-info">未登录</div>
+    </header>
+
+    <div id="auth-section" class="auth-section">
+      <h2>Welcome to PassWorld</h2>
+      <div class="login-form">
+        <div class="form-group">
+          <label for="username">用户名</label>
+          <input type="text" id="username" placeholder="请输入用户名" />
+        </div>
+        <div class="form-group">
+          <label for="password">密码</label>
+          <input type="password" id="password" placeholder="请输入密码" />
+        </div>
+        <button id="login-btn" class="btn-login">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/global.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>
