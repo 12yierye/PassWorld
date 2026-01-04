@@ -35,9 +35,9 @@ const createWindow = () => {
   // 设置页面加载事件监听器
   win.webContents.on('did-finish-load', () => {
     console.log('Page finished loading');
-    if (!app.isPackaged) {
-      win.webContents.openDevTools(); // 开发环境下自动打开开发者工具
-    }
+    // if (!app.isPackaged) {
+    //   win.webContents.openDevTools(); // 开发环境下自动打开开发者工具
+    // }
     win.show(); // 页面加载完成后显示窗口
   });
 
@@ -79,7 +79,7 @@ const createWindow = () => {
   // 根据环境决定加载的URL
   if (app.isPackaged) {
     // 生产环境：加载主HTML文件
-    const indexPath = join(__dirname, '../../index.html');
+    const indexPath = join(__dirname, '../../login.html');
     console.log('Packaged app - loading index.html from:', indexPath);
     
     if (existsSync(indexPath)) {
@@ -95,7 +95,7 @@ const createWindow = () => {
     }
   } else {
     // 开发环境：直接加载主HTML文件
-    win.loadFile(join(__dirname, '../../index.html'));
+    win.loadFile(join(__dirname, '../../login.html'));
   }
 };
 
