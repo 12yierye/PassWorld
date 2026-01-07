@@ -22,7 +22,7 @@
           <button id="logout-btn" class="btn-logout">Logout</button>
         </div>
       </div>
-      <div id="error-message" class="error-message" style="display: none;"></div>
+      <div id="error-message" class="error-message hidden"></div>
 
       <table id="accounts-table">
         <thead>
@@ -48,7 +48,7 @@
         <div class="form-group">
           <label for="platform-input">平台</label>
           <input type="text" id="platform-input" placeholder="例如：Google, Facebook" />
-          <div id="platform-suggestions" class="platform-suggestions" style="display: none;"></div>
+          <div id="platform-suggestions" class="platform-suggestions hidden"></div>
         </div>
         <div class="form-group">
           <label for="account-username-input">用户名</label>
@@ -59,8 +59,8 @@
           <input type="password" id="account-password-input" placeholder="账户密码" />
         </div>
         <div class="modal-footer">
-          <button id="cancel-btn">取消</button>
-          <button id="save-btn">保存</button>
+          <button type="button" id="cancel-btn">取消</button>
+          <button type="button" id="save-btn">保存</button>
         </div>
       </div>
     </div>

@@ -26,6 +26,10 @@
   font-weight: bold;
 }
 
+.error-message.hidden {
+  display: none;
+}
+
 .platform-suggestions {
   position: absolute;
   background: white;
@@ -36,6 +40,10 @@
   z-index: 1000;
   width: 100%;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.platform-suggestions.hidden {
+  display: none;
 }
 
 .platform-suggestions div {
