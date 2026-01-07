@@ -4,8 +4,25 @@ function showError(message) {
   const errorDiv = document.getElementById('error-message');
   errorDiv.textContent = message;
   errorDiv.style.display = 'block';
+  
+  // 隐藏成功消息（如果正在显示）
+  document.getElementById('success-message').style.display = 'none';
+  
   setTimeout(() => {
     errorDiv.style.display = 'none';
+  }, 5000); // 5秒后隐藏
+}
+
+function showSuccess(message) {
+  const successDiv = document.getElementById('success-message');
+  successDiv.textContent = message;
+  successDiv.style.display = 'block';
+  
+  // 隐藏错误消息（如果正在显示）
+  document.getElementById('error-message').style.display = 'none';
+  
+  setTimeout(() => {
+    successDiv.style.display = 'none';
   }, 5000); // 5秒后隐藏
 }
 
@@ -29,10 +46,19 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     return;
   }
 
+  // 禁用按钮以防止重复提交
+  const registerBtn = document.getElementById('register-btn');
+  registerBtn.disabled = true;
+  registerBtn.textContent = '注册中...';
+
   try {
     const result = await ipcRenderer.invoke('db-create-user', username, password);
     if (result.success) {
-      showError('注册成功，请返回登录');
+      showSuccess('注册成功，请返回登录');
+      // 清空表单
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('confirm-password').value = '';
     } else {
       // 检查是否是用户名已存在的错误
       if (result.error && result.error.includes('UNIQUE constraint failed')) {
@@ -43,6 +69,10 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     }
   } catch (err) {
     showError('注册失败: ' + err.message);
+  } finally {
+    // 重新启用按钮
+    registerBtn.disabled = false;
+    registerBtn.textContent = '注册';
   }
 });
 

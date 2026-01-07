@@ -25,8 +25,25 @@ function showError(message) {
   const errorDiv = document.getElementById('error-message');
   errorDiv.textContent = message;
   errorDiv.style.display = 'block';
+  
+  // 隐藏成功消息（如果正在显示）
+  document.getElementById('success-message').style.display = 'none';
+  
   setTimeout(() => {
     errorDiv.style.display = 'none';
+  }, 5000); // 5秒后隐藏
+}
+
+function showSuccess(message) {
+  const successDiv = document.getElementById('success-message');
+  successDiv.textContent = message;
+  successDiv.style.display = 'block';
+  
+  // 隐藏错误消息（如果正在显示）
+  document.getElementById('error-message').style.display = 'none';
+  
+  setTimeout(() => {
+    successDiv.style.display = 'none';
   }, 5000); // 5秒后隐藏
 }
 
@@ -127,6 +144,8 @@ async function saveAccountsToDb(accs) {
     const result = await ipcRenderer.invoke('db-save-accounts', currentUser, masterPassword, accs);
     if (!result.success) {
       showError('保存失败: ' + result.error);
+    } else {
+      showSuccess('保存成功');
     }
   } catch (err) {
     showError('保存失败: ' + err.message);

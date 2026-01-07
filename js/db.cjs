@@ -1,10 +1,7 @@
-import initSqlJs from 'sql.js/dist/sql-asm.js';
-import crypto from 'crypto';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const initSqlJs = require('sql.js/dist/sql-asm.js');
+const crypto = require('crypto');
+const path = require('path');
+const fs = require('fs');
 
 // 数据库 - 使用 sql.js 内存数据库
 let db;
@@ -62,7 +59,7 @@ function verifyPassword(password, hashed) {
 // 初始化数据库
 async function initDatabases() {
   const SQL = await initSqlJs({
-    locateFile: file => `../node_modules/sql.js/dist/${file}`
+    locateFile: (file) => path.join(__dirname, '../node_modules/sql.js/dist/', file)
   });
   db = new SQL.Database();
   
@@ -79,7 +76,53 @@ async function initDatabases() {
   )`);
 }
 
-export {
+// 用户注册
+async function createUser(username, password) {
+  const hashed = hashPassword(password);
+  db.run(`INSERT INTO users (username, hashed_password) VALUES (?, ?)`, [username, hashed]);
+}
+
+// 用户认证
+async function authenticateUser(username, password) {
+  const stmt = db.prepare(`SELECT hashed_password FROM users WHERE username = ?`);
+  const row = stmt.get([username]);
+  stmt.free();
+  if (!row) return false;
+  return verifyPassword(password, row.hashed_password);
+}
+
+// 保存账户数据
+async function saveAccounts(user, masterPassword, accounts) {
+  const encrypted = encrypt(JSON.stringify(accounts), masterPassword);
+  // 检查用户是否已有保存的数据
+  const stmt = db.prepare(`SELECT user FROM accounts WHERE user = ?`);
+  const row = stmt.get([user]);
+  stmt.free();
+  if (row) {
+    // 更新现有数据
+    db.run(`UPDATE accounts SET encrypted_data = ? WHERE user = ?`, [encrypted, user]);
+  } else {
+    // 插入新数据
+    db.run(`INSERT INTO accounts (user, encrypted_data) VALUES (?, ?)`, [user, encrypted]);
+  }
+}
+
+// 加载账户数据
+async function loadAccounts(user, masterPassword) {
+  const stmt = db.prepare(`SELECT encrypted_data FROM accounts WHERE user = ?`);
+  const row = stmt.get([user]);
+  stmt.free();
+  if (!row) return [];
+  try {
+    const decrypted = decrypt(row.encrypted_data, masterPassword);
+    return JSON.parse(decrypted);
+  } catch (e) {
+    // 解密失败，可能是密码错误
+    throw new Error('Invalid password');
+  }
+}
+
+module.exports = {
   initDatabases,
   createUser,
   authenticateUser,

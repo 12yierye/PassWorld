@@ -5,16 +5,19 @@
   "description": "A password manager application",
   "author": "PassWorld Team",
   "type": "module",
-  "main": "src/main/main.js",
+  "main": "src/main/main.cjs",
   "scripts": {
-    "start": "electron .",
-    "dev": "electron ."
+    "start": "npx electron .",
+    "dev": "npx electron .",
+    "postinstall": "electron-builder install-app-deps",
+    "dev:win": "npx electron ."
   },
   "dependencies": {
     "face-api.js": "^0.22.2",
     "sql.js": "^1.10.3"
   },
   "devDependencies": {
-    "electron": "^28.3.3"
+    "electron": "^28.3.3",
+    "electron-builder": "^24.6.3"
   }
 }

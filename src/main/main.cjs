@@ -1,8 +1,7 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { readFileSync, existsSync } from 'fs';
-import * as db from '../../js/db.js'
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { join, dirname } = require('path');
+const { readFileSync, existsSync } = require('fs');
+const db = require('../../js/db.cjs')  // 更新引用路径
 
 // 实现单实例锁，确保应用只能运行一个实例
 const gotTheLock = app.requestSingleInstanceLock();
@@ -11,10 +10,6 @@ if (!gotTheLock) {
   // 如果获取锁失败，说明已经有实例在运行，直接退出
   app.quit();
 }
-
-// 获取当前文件的目录路径
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const createWindow = () => {
   const options = {
@@ -99,6 +94,7 @@ const createWindow = () => {
     win.loadFile(join(__dirname, '../../login.html'));
   }
 };
+
 
 // 当Electron完成初始化时调用
 app.whenReady().then(() => {
