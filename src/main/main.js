@@ -25,7 +25,7 @@ const createWindow = () => {
     webPreferences: {
       nodeIntegration: true,  // 启用nodeIntegration以支持原生JS功能
       contextIsolation: false, // 由于需要支持原生JS功能，暂时关闭上下文隔离
-      preload: join(__dirname, 'preload.js')
+      preload: join(__dirname, '../../electron/preload.js')  // 修正预加载脚本路径
     },
     icon: join(__dirname, '../../assets/Normal Locker.png'), // 如果有图标文件的话
     show: false // 先不显示窗口，等页面加载完成后再显示

@@ -2,13 +2,19 @@
   "name": "passworld",
   "private": true,
   "version": "0.0.1",
+  "description": "A password manager application",
+  "author": "PassWorld Team",
   "type": "module",
+  "main": "src/main/main.js",
   "scripts": {
-    "start": "npx electron .",
-    "dev": "npx electron ."
+    "start": "electron .",
+    "dev": "electron ."
   },
   "dependencies": {
     "face-api.js": "^0.22.2",
     "sql.js": "^1.10.3"
+  },
+  "devDependencies": {
+    "electron": "^28.3.3"
   }
 }
