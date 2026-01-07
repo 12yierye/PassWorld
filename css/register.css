@@ -1,0 +1,82 @@
+.register-section {
+  padding: 40px;
+  text-align: center;
+}
+
+.register-section h2 {
+  margin-bottom: 25px;
+  color: #2c3e50;
+  font-size: 1.5em;
+}
+
+.error-message {
+  color: #e74c3c;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.register-form {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.btn-register {
+  width: 100%;
+  padding: 12px;
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.btn-register:hover {
+  background-color: #229954;
+}
+
+.btn-back {
+  width: 100%;
+  padding: 12px;
+  background-color: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-back:hover {
+  background-color: #7f8c8d;
+}

@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { readFileSync, existsSync } from 'fs';
+import * as db from '../../js/db.js'
 
 // 实现单实例锁，确保应用只能运行一个实例
 const gotTheLock = app.requestSingleInstanceLock();
@@ -35,9 +36,9 @@ const createWindow = () => {
   // 设置页面加载事件监听器
   win.webContents.on('did-finish-load', () => {
     console.log('Page finished loading');
-    if (!app.isPackaged) {
-      win.webContents.openDevTools(); // 开发环境下自动打开开发者工具
-    }
+    // if (!app.isPackaged) {
+    //   win.webContents.openDevTools(); // 开发环境下自动打开开发者工具
+    // }
     win.show(); // 页面加载完成后显示窗口
   });
 
@@ -79,7 +80,7 @@ const createWindow = () => {
   // 根据环境决定加载的URL
   if (app.isPackaged) {
     // 生产环境：加载主HTML文件
-    const indexPath = join(__dirname, '../../index.html');
+    const indexPath = join(__dirname, '../../login.html');
     console.log('Packaged app - loading index.html from:', indexPath);
     
     if (existsSync(indexPath)) {
@@ -95,12 +96,13 @@ const createWindow = () => {
     }
   } else {
     // 开发环境：直接加载主HTML文件
-    win.loadFile(join(__dirname, '../../index.html'));
+    win.loadFile(join(__dirname, '../../login.html'));
   }
 };
 
 // 当Electron完成初始化时调用
 app.whenReady().then(() => {
+  db.initDatabases();
   createWindow();
 
   // 处理第二个实例的尝试
@@ -129,13 +131,39 @@ app.on('window-all-closed', () => {
   }
 });
 
-// IPC处理（如果需要的话）
-ipcMain.on('asynchronous-message', (event, arg) => {
-  console.log(arg); // prints "ping"
-  event.reply('asynchronous-reply', 'pong');
+// IPC处理数据库操作
+ipcMain.handle('db-create-user', async (event, username, password) => {
+  try {
+    await db.createUser(username, password);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
 });
 
-ipcMain.on('synchronous-message', (event, arg) => {
-  console.log(arg); // prints "ping"
-  event.returnValue = 'pong';
+ipcMain.handle('db-authenticate', async (event, username, password) => {
+  try {
+    const valid = await db.authenticateUser(username, password);
+    return { success: valid };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('db-save-accounts', async (event, user, masterPassword, accounts) => {
+  try {
+    await db.saveAccounts(user, masterPassword, accounts);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('db-load-accounts', async (event, user, masterPassword) => {
+  try {
+    const accounts = await db.loadAccounts(user, masterPassword);
+    return { success: true, accounts };
+  } catch (err) {
+    return { success: false, accounts: [], error: err.message };
+  }
 });

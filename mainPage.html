@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PassWorld - Accounts</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/mainPage.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>PassWorld</h1>
+      <div id="user-info">Loading...</div>
+    </header>
+
+    <div id="accounts-section" class="accounts-section">
+      <div class="controls">
+        <h2>账户列表</h2>
+        <div>
+          <button id="add-account-btn" class="btn-add">添加账户</button>
+          <button id="logout-btn" class="btn-logout">Logout</button>
+        </div>
+      </div>
+      <div id="error-message" class="error-message" style="display: none;"></div>
+
+      <table id="accounts-table">
+        <thead>
+          <tr>
+            <th>平台</th>
+            <th>用户名</th>
+            <th>密码</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="accounts-tbody">
+          <!-- 动态生成 -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 模态框 -->
+    <div id="account-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modal-title">添加账户</h2>
+        </div>
+        <div class="form-group">
+          <label for="platform-input">平台</label>
+          <input type="text" id="platform-input" placeholder="例如：Google, Facebook" />
+          <div id="platform-suggestions" class="platform-suggestions" style="display: none;"></div>
+        </div>
+        <div class="form-group">
+          <label for="account-username-input">用户名</label>
+          <input type="text" id="account-username-input" placeholder="账户用户名" />
+        </div>
+        <div class="form-group">
+          <label for="account-password-input">密码</label>
+          <input type="password" id="account-password-input" placeholder="账户密码" />
+        </div>
+        <div class="modal-footer">
+          <button id="cancel-btn">取消</button>
+          <button id="save-btn">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/global.js"></script>
+  <script src="js/mainPage.js"></script>
+</body>
+</html>

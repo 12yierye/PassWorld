@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PassWorld - Register</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/register.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>PassWorld</h1>
+      <div id="user-info">未登录</div>
+    </header>
+
+    <div id="register-section" class="register-section">
+      <h2>注册新账户</h2>
+      <div id="error-message" class="error-message" style="display: none;"></div>
+      <div class="register-form">
+        <div class="form-group">
+          <label for="username">用户名</label>
+          <input type="text" id="username" placeholder="请输入用户名" />
+        </div>
+        <div class="form-group">
+          <label for="password">密码</label>
+          <input type="password" id="password" placeholder="请输入密码（至少6位）" />
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">确认密码</label>
+          <input type="password" id="confirm-password" placeholder="请再次输入密码" />
+        </div>
+        <button id="register-btn" class="btn-register">注册</button>
+        <button id="back-to-login-btn" class="btn-back">返回登录</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/global.js"></script>
+  <script src="js/register.js"></script>
+</body>
+</html>

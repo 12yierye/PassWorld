@@ -1,0 +1,138 @@
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+}
+
+.accounts-section {
+  padding: 30px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  padding: 0 10px;
+}
+
+.error-message {
+  color: #e74c3c;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.platform-suggestions {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  width: 100%;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.platform-suggestions div {
+  padding: 8px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.platform-suggestions div:hover {
+  background: #f8f9fa;
+}
+
+.platform-suggestions div:last-child {
+  border-bottom: none;
+}
+
+.modal .form-group {
+  position: relative;
+}
+
+.modal .form-group input {
+  position: relative;
+}
+
+.btn-add {
+  background: #27ae60;
+  padding: 10px 20px;
+}
+
+.btn-add:hover {
+  background: #219653;
+}
+
+.btn-logout {
+  background: #e74c3c;
+  padding: 10px 20px;
+}
+
+.btn-logout:hover {
+  background: #c0392b;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.password-cell {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.password-text {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.password-cell {
+  font-family: monospace;
+  letter-spacing: 2px;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  margin-right: 5px;
+  font-size: 14px;
+}
+
+.action-btn.edit {
+  background: #f39c12;
+}
+
+.action-btn.edit:hover {
+  background: #d35400;
+}
+
+.action-btn.delete {
+  background: #e74c3c;
+}
+
+.action-btn.delete:hover {
+  background: #c0392b;
+}
