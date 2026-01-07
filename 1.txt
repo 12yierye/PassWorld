@@ -1,0 +1,11 @@
+The FaceID recognization does not finished. 
+Using it directly is not very safe, but you can still add new accounts and corresponding password of them. 
+It has basic UI and functions to use. 
+If you won't use a software without safety, you can look for the later versions. 
+
+
+...
+The number of Easter Egg hidden in this software is:
+1
+...
+Tips: It is about accounts :)

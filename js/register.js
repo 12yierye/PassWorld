@@ -54,11 +54,16 @@ document.getElementById('register-btn').addEventListener('click', async () => {
   try {
     const result = await ipcRenderer.invoke('db-create-user', username, password);
     if (result.success) {
-      showSuccess('注册成功，请返回登录');
+      showSuccess('注册成功！');
       // 清空表单
       document.getElementById('username').value = '';
       document.getElementById('password').value = '';
       document.getElementById('confirm-password').value = '';
+      
+      // 2秒后自动跳转到登录页面
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 2000);
     } else {
       // 检查是否是用户名已存在的错误
       if (result.error && result.error.includes('UNIQUE constraint failed')) {

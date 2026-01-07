@@ -31,7 +31,36 @@
   display: none;
 }
 
+.btn-login { 
+  width: 100%;
+  padding: 12px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
 .login-form {
   max-width: 400px;
   margin: 0 auto;
+}
+
+.link-text {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #555;
+}
+
+.link-text a {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.link-text a:hover {
+  text-decoration: none;
+  color: #3498db;
 }

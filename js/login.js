@@ -47,18 +47,13 @@ document.getElementById('login-btn').addEventListener('click', async () => {
       window.location.href = 'mainPage.html';
     } else {
       showError('用户名或密码错误');
-      // 重新启用按钮
-      loginBtn.disabled = false;
-      loginBtn.textContent = 'Login';
     }
   } catch (err) {
     showError('登录失败: ' + err.message);
-    // 重新启用按钮
+  } finally {
+    // 无论成功还是失败，都要重新启用按钮
     loginBtn.disabled = false;
     loginBtn.textContent = 'Login';
   }
 });
 
-document.getElementById('go-to-register-btn').addEventListener('click', () => {
-  window.location.href = 'register.html';
-});
