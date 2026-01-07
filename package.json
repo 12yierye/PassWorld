@@ -3,45 +3,12 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "main": "src/main/main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "electron .",
-    "build": "electron-builder"
+    "start": "npx electron .",
+    "dev": "npx electron ."
   },
   "dependencies": {
     "face-api.js": "^0.22.2",
-    "sqlite3": "^5.1.7"
-  },
-  "devDependencies": {
-    "electron": "^28.2.0",
-    "electron-builder": "^24.9.1"
-  },
-  "build": {
-    "appId": "com.example.passworld",
-    "productName": "PassWorld",
-    "directories": {
-      "output": "dist-electron"
-    },
-    "files": [
-      "src/**/*",
-      "assets/**/*",
-      "node_modules/**/*",
-      "package.json",
-      "login.html",
-      "mainPage.html"
-    ],
-    "win": {
-      "target": "nsis",
-      "icon": "assets/Normal Locker.ico"
-    },
-    "mac": {
-      "target": "dmg",
-      "icon": "assets/Normal Locker.icns"
-    },
-    "linux": {
-      "target": "AppImage",
-      "icon": "assets/Normal Locker.png"
-    }
+    "sql.js": "^1.10.3"
   }
 }

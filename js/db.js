@@ -1,4 +1,4 @@
-import sqlite3 from 'sqlite3';
+import initSqlJs from 'sql.js/dist/sql-asm.js';
 import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -6,10 +6,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 数据库路径
-const dataDir = path.join(__dirname, '..', 'data');
-const usersDbPath = path.join(dataDir, 'users.db');
-const accountsDbPath = path.join(dataDir, 'accounts.db');
+// 数据库 - 使用 sql.js 内存数据库
+let db;
 
 // 加密算法
 const algorithm = 'aes-256-cbc';
@@ -62,84 +60,23 @@ function verifyPassword(password, hashed) {
 }
 
 // 初始化数据库
-function initDatabases() {
-  // 用户数据库
-  const usersDb = new sqlite3.Database(usersDbPath);
-  usersDb.serialize(() => {
-    usersDb.run(`CREATE TABLE IF NOT EXISTS users (
-      username TEXT PRIMARY KEY,
-      hashed_password TEXT NOT NULL
-    )`);
+async function initDatabases() {
+  const SQL = await initSqlJs({
+    locateFile: file => `../node_modules/sql.js/dist/${file}`
   });
-  usersDb.close();
+  db = new SQL.Database();
+  
+  // 用户表
+  db.run(`CREATE TABLE IF NOT EXISTS users (
+    username TEXT PRIMARY KEY,
+    hashed_password TEXT NOT NULL
+  )`);
 
-  // 账户数据库
-  const accountsDb = new sqlite3.Database(accountsDbPath);
-  accountsDb.serialize(() => {
-    accountsDb.run(`CREATE TABLE IF NOT EXISTS accounts (
-      user TEXT PRIMARY KEY,
-      encrypted_data TEXT NOT NULL
-    )`);
-  });
-  accountsDb.close();
-}
-
-// 用户相关
-function createUser(username, password) {
-  return new Promise((resolve, reject) => {
-    const hashed = hashPassword(password);
-    const usersDb = new sqlite3.Database(usersDbPath);
-    usersDb.run('INSERT INTO users (username, hashed_password) VALUES (?, ?)', [username, hashed], function(err) {
-      usersDb.close();
-      if (err) reject(err);
-      else resolve();
-    });
-  });
-}
-
-function authenticateUser(username, password) {
-  return new Promise((resolve, reject) => {
-    const usersDb = new sqlite3.Database(usersDbPath);
-    usersDb.get('SELECT hashed_password FROM users WHERE username = ?', [username], (err, row) => {
-      usersDb.close();
-      if (err) reject(err);
-      else if (!row) resolve(false);
-      else resolve(verifyPassword(password, row.hashed_password));
-    });
-  });
-}
-
-// 账户相关
-function saveAccounts(user, masterPassword, accounts) {
-  return new Promise((resolve, reject) => {
-    const data = JSON.stringify(accounts);
-    const encrypted = encrypt(data, masterPassword);
-    const accountsDb = new sqlite3.Database(accountsDbPath);
-    accountsDb.run('INSERT OR REPLACE INTO accounts (user, encrypted_data) VALUES (?, ?)', [user, encrypted], function(err) {
-      accountsDb.close();
-      if (err) reject(err);
-      else resolve();
-    });
-  });
-}
-
-function loadAccounts(user, masterPassword) {
-  return new Promise((resolve, reject) => {
-    const accountsDb = new sqlite3.Database(accountsDbPath);
-    accountsDb.get('SELECT encrypted_data FROM accounts WHERE user = ?', [user], (err, row) => {
-      accountsDb.close();
-      if (err) reject(err);
-      else if (!row) resolve([]);
-      else {
-        try {
-          const decrypted = decrypt(row.encrypted_data, masterPassword);
-          resolve(JSON.parse(decrypted));
-        } catch (e) {
-          reject(new Error('Invalid master password'));
-        }
-      }
-    });
-  });
+  // 账户表
+  db.run(`CREATE TABLE IF NOT EXISTS accounts (
+    user TEXT PRIMARY KEY,
+    encrypted_data TEXT NOT NULL
+  )`);
 }
 
 export {
