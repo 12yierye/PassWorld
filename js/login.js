@@ -57,3 +57,47 @@ document.getElementById('login-btn').addEventListener('click', async () => {
   }
 });
 
+document.getElementById('face-id-btn').addEventListener('click', async () => {
+  const username = document.getElementById('username').value.trim();
+
+  if (!username) {
+    showError('请输入用户名');
+    return;
+  }
+
+  // 禁用按钮以防止重复提交
+  const faceIdBtn = document.getElementById('face-id-btn');
+  faceIdBtn.disabled = true;
+  faceIdBtn.textContent = '验证中...';
+
+  // 显示人脸识别加载界面
+  document.getElementById('face-id-loading').style.display = 'block';
+
+  try {
+    // 模拟人脸识别，延时0.7秒后进入主界面
+    await new Promise(resolve => setTimeout(resolve, 700));
+    
+    // 由于是假人脸识别，我们直接进入主界面
+    // 在实际应用中，这里应该验证用户是否存在
+    const result = await ipcRenderer.invoke('db-check-user', username);
+    if (result.exists) {
+      // 设置当前用户（使用一个临时密码，因为不再验证密码）
+      PassWorld.loginUser(username, 'temp_password');
+      window.location.href = 'mainPage.html';
+    } else {
+      showError('用户不存在');
+    }
+  } catch (err) {
+    showError('登录失败: ' + err.message);
+  } finally {
+    // 无论成功还是失败，都要重新启用按钮
+    faceIdBtn.disabled = false;
+    faceIdBtn.textContent = '人脸识别登录';
+  }
+});
+
+// 页面加载完成后隐藏人脸识别加载界面
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('face-id-loading').style.display = 'none';
+});
+

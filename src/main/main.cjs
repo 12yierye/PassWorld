@@ -146,6 +146,15 @@ ipcMain.handle('db-authenticate', async (event, username, password) => {
   }
 });
 
+ipcMain.handle('db-check-user', async (event, username) => {
+  try {
+    const exists = await db.checkUserExists(username);
+    return { exists };
+  } catch (err) {
+    return { exists: false, error: err.message };
+  }
+});
+
 ipcMain.handle('db-save-accounts', async (event, user, masterPassword, accounts) => {
   try {
     await db.saveAccounts(user, masterPassword, accounts);

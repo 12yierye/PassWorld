@@ -5,6 +5,11 @@ const platforms = [
   'Microsoft', 'Apple', 'Steam', 'PayPal', 'Dropbox', 'Slack', 'Zoom', 'TikTok'
 ];
 
+// 彩蛋相关变量
+let clickCount = 0;
+let clickTimer;
+let isEggActive = false;
+
 // 初始化
 document.addEventListener('DOMContentLoaded', async () => {
   const currentUser = PassWorld.getCurrentUser();
@@ -53,7 +58,32 @@ function setupEventListeners() {
     window.location.href = 'login.html';
   });
 
+  // 添加账户按钮点击事件，用于彩蛋检测
   document.getElementById('add-account-btn').addEventListener('click', () => {
+    // 检查彩蛋条件：3分钟内点击超过20次
+    if (!clickTimer) {
+      clickTimer = setTimeout(() => {
+        clickCount = 0;
+        clickTimer = null;
+      }, 3 * 60 * 1000); // 3分钟
+    }
+
+    clickCount++;
+
+    if (clickCount > 20 && !isEggActive) {
+      isEggActive = true;
+      alert('真的有这么多账户吗щ(ʘ╻ʘ)щ');
+      // 重置计数
+      setTimeout(() => {
+        clickCount = 0;
+        isEggActive = false;
+        if (clickTimer) {
+          clearTimeout(clickTimer);
+          clickTimer = null;
+        }
+      }, 1000);
+    }
+
     openModal('添加账户');
   });
 

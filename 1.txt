@@ -1,11 +1,19 @@
-The FaceID recognization does not finished. 
+The face recognization does not finished. 
 Using it directly is not very safe, but you can still add new accounts and corresponding password of them. 
 It has basic UI and functions to use. 
 If you won't use a software without safety, you can look for the later versions. 
-
-
-...
-The number of Easter Egg hidden in this software is:
+......
+The number of Easter Egg hidden in this version is:
 1
-...
+......
 Tips: It is about accounts :)
+
+
+
+由于人脸识别功能尚未实现，所以直接使用该软件不是很安全，但你仍然可以正常添加账户和对应的密码。
+基本的UI还是有的，如果你不想使用一个根本不安全的软件，可以看看后续更新的版本。
+：：：：：：
+该版本彩蛋数量：
+1
+：：：：：：
+提示：和账户有关喔 (～￣▽￣)～
