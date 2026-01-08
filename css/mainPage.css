@@ -331,3 +331,20 @@ button {
 button:focus {
   box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.5);
 }
+
+/* 加载动画样式 */
+.loading-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

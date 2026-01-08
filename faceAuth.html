@@ -52,7 +52,7 @@
       document.getElementById('user-info').textContent = `验证: ${username}`;
     }
 
-    // 模拟人脸识别验证过程
+    // 模拟人脸识别验证过程，现在是2.3秒
     setTimeout(async () => {
       try {
         // 模拟人脸识别验证
@@ -75,10 +75,14 @@
             }, 2000);
           }
         } else if (action === 'register') {
-          // 对于注册，设置当前用户并跳转到主页面
-          // 使用一个临时密码，因为注册时我们已经创建了用户
-          window.PassWorld.loginUser(username, Math.random().toString(36).substring(2, 15));
-          window.location.href = 'mainPage.html';
+          // 对于注册，验证成功后跳转回登录页面
+          document.getElementById('success-message').textContent = '验证成功！请返回登录';
+          document.getElementById('success-message').style.display = 'block';
+          
+          // 注册验证成功后，显示成功信息并2秒后跳转到登录页面
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 2000);
         }
       } catch (error) {
         document.getElementById('error-message').textContent = '验证失败: ' + error.message;
@@ -93,7 +97,7 @@
           }
         }, 2000);
       }
-    }, 800); // 0.8秒后完成验证
+    }, 2300); // 2.3秒后完成验证
   </script>
 </body>
 </html>

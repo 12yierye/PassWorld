@@ -47,9 +47,9 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     if (result.success) {
       showSuccess('注册成功！');
       
-      // 2秒后跳转到人脸识别页面
+      // 2秒后跳转到登录页面
       setTimeout(() => {
-        window.location.href = `faceAuth.html?username=${encodeURIComponent(username)}&action=register`;
+        window.location.href = 'login.html';
       }, 2000);
     } else {
       // 检查是否是用户名已存在的错误

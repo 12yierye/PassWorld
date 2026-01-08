@@ -1,14 +1,23 @@
+mainPage.js
 // 平台列表
 const platforms = [
   'Google', 'Facebook', 'Twitter', 'Instagram', 'GitHub', 'LinkedIn', 'YouTube',
   'Amazon', 'Netflix', 'Spotify', 'Discord', 'Reddit', 'WhatsApp', 'Telegram',
-  'Microsoft', 'Apple', 'Steam', 'PayPal', 'Dropbox', 'Slack', 'Zoom', 'TikTok'
+  'Microsoft', 'Apple', 'Steam', 'PayPal', 'Dropbox', 'Slack', 'Zoom', 'TikTok',
+  'Meta', 'Twitch', 'Pinterest', 'Snapchat', 'Flickr', 'Vimeo', 'Adobe',
+  'Salesforce', 'Oracle', 'SAP', 'IBM', 'Cisco', 'Intel', 'HP', 'Dell',
+  'Lenovo', 'Samsung', 'Sony', 'Nike', 'Adidas', 'Tesla', 'SpaceX', 'Uber',
+  'Airbnb', 'Shopify', 'WordPress'
 ];
 
 // 彩蛋相关变量
 let clickCount = 0;
 let clickTimer;
 let isEggActive = false;
+
+// 保存状态相关变量
+let isSaving = false; // 标记是否正在保存
+let isCancelForced = false; // 标记是否强制取消
 
 // 初始化
 document.addEventListener('DOMContentLoaded', async () => {
@@ -163,13 +172,13 @@ function setupEventListeners() {
   });
 
   // 为取消按钮添加事件监听器
-  document.getElementById('cancel-btn').addEventListener('click', closeModal);
+  document.getElementById('cancel-btn').addEventListener('click', handleCancel);
   document.getElementById('save-btn').addEventListener('click', saveAccount);
 
   // 关闭模态框点击遮罩 - 修复死循环问题
   document.getElementById('account-modal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('account-modal')) {
-      closeModal();
+      handleCancel();
     }
   });
 }
@@ -337,6 +346,19 @@ function openModal(title, account = null) {
   }
 }
 
+function handleCancel() {
+  // 如果正在保存中，询问是否强制取消
+  if (isSaving && !isCancelForced) {
+    if (confirm('数据正在保存中，是否强制取消？')) {
+      isCancelForced = true;
+      closeModal();
+      isCancelForced = false; // 重置状态
+    }
+  } else {
+    closeModal();
+  }
+}
+
 function closeModal() {
   const modal = document.getElementById('account-modal');
   // 添加关闭动画类
@@ -352,6 +374,9 @@ function closeModal() {
 }
 
 async function saveAccount() {
+  // 如果正在保存，直接返回
+  if (isSaving) return;
+  
   const platform = document.getElementById('platform-input').value.trim();
   const username = document.getElementById('account-username-input').value.trim();
   const password = document.getElementById('account-password-input').value;
@@ -360,6 +385,13 @@ async function saveAccount() {
     showModalError('平台和用户名必填');
     return;
   }
+
+  // 设置保存状态，禁用保存按钮并显示加载状态
+  isSaving = true;
+  const saveBtn = document.getElementById('save-btn');
+  const originalText = saveBtn.textContent;
+  saveBtn.innerHTML = '<span class="loading-spinner"></span> 保存中...';
+  saveBtn.disabled = true;
 
   if (editingIndex !== null) {
     accounts[editingIndex] = { platform, username, password };
@@ -375,6 +407,12 @@ async function saveAccount() {
     closeModal(); // 成功后才关闭模态框
   } catch (error) {
     // 显示错误但不关闭模态框
+    console.error('保存账户时发生错误:', error); // 在控制台输出详细错误信息
     showModalError('保存失败: ' + error.message);
+  } finally {
+    // 恢复按钮状态
+    saveBtn.innerHTML = originalText;
+    saveBtn.disabled = false;
+    isSaving = false;
   }
 }

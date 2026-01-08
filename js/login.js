@@ -8,8 +8,19 @@ document.getElementById('login-btn').addEventListener('click', async () => {
     return;
   }
 
-  // 跳转到人脸识别页面
-  window.location.href = `faceAuth.html?username=${encodeURIComponent(username)}&action=login`;
+  // 检查用户是否存在
+  try {
+    const result = await ipcRenderer.invoke('db-check-user', username);
+    if (result.exists) {
+      // 用户存在，跳转到人脸识别页面
+      window.location.href = `faceAuth.html?username=${encodeURIComponent(username)}&action=login`;
+    } else {
+      // 用户不存在，显示错误提示
+      showError('用户不存在');
+    }
+  } catch (err) {
+    showError('检查用户失败: ' + err.message);
+  }
 });
 
 function showError(message) {
