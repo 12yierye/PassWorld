@@ -31,6 +31,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('user-info').textContent = `欢迎, ${currentUser}`;
 
+  // 显示加载状态
+  const tbody = document.getElementById('accounts-tbody');
+  if (tbody) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" class="loading-state">
+          <div style="text-align: center; padding: 20px; color: #999;">
+            <p>正在加载账户数据...</p>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
+  // 异步加载账户数据
   await loadAccounts();
   setupEventListeners();
 });
@@ -228,7 +243,9 @@ async function loadAccounts() {
   const currentUser = PassWorld.getCurrentUser();
   const masterPassword = PassWorld.masterPassword;
   try {
+    console.log('开始加载账户数据...');
     const result = await ipcRenderer.invoke('db-load-accounts', currentUser, masterPassword);
+    console.log('账户数据加载完成:', result);
     accounts = result.accounts || [];
     const tbody = document.getElementById('accounts-tbody');
     
@@ -301,8 +318,8 @@ async function loadAccounts() {
       });
     }
   } catch (err) {
+    console.error('加载账户失败:', err);
     // 如果是新用户没有账户数据，这可能是正常的，所以不显示错误
-    console.log('Loading accounts failed: ' + err.message);
     // 仍然显示空状态
     const tbody = document.getElementById('accounts-tbody');
     if (tbody) {  // 检查元素是否存在

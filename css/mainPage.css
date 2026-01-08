@@ -7,7 +7,7 @@
 
 .accounts-section {
   padding: 30px;
-  height: 100vh; /* 设置为100%视口高度 */
+  min-height: calc(100vh - 130px); /* 减去header高度和其他边距 */
   display: flex;
   flex-direction: column;
 }
@@ -137,11 +137,13 @@
   margin-top: 15px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  max-height: calc(100vh - 200px); /* 限制最大高度，减去header和controls等元素的高度 */
 }
 
 table {
   width: 100%;
-  min-width: 700px; /* 最小宽度，确保内容可读 */
+  min-width: 700px; 
+  max-height: 90%;
   border-collapse: collapse;
   background-color: white;
 }
