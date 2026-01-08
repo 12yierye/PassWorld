@@ -7,9 +7,9 @@
 
 .accounts-section {
   padding: 30px;
-  min-height: calc(100vh - 130px); /* 减去header高度和其他边距 */
   display: flex;
   flex-direction: column;
+  min-height: calc(100vh - 130px);
 }
 
 .controls {
@@ -228,37 +228,48 @@ tr {
 } */
 
 /* 优化空状态显示 */
-.empty-state {
+.empty-state-cell {
   text-align: center;
-  height: 300px; /* 设置固定高度 */
+  height: 300px;
+}
+
+.empty-state-content {
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 100%;
+  width: 100%;
   color: #ccc;
   font-size: 20px;
-  transition: all 0.3s ease;
 }
 
 /* 优化模态框动画 */
 .modal {
   display: none;
   position: fixed;
-  z-index: 1000;
-  left: 0;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0,0,0,0.5);
-  opacity: 1;
-  visibility: visible;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
 }
 
 .modal.show {
   display: flex;
+  opacity: 1;
+  visibility: visible;
   animation: fadeIn 0.3s ease-out;
 }
 
 .modal.closing {
+  opacity: 0;
+  visibility: hidden;
   animation: fadeOut 0.15s ease-out forwards;
 }
 

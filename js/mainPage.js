@@ -1,4 +1,3 @@
-mainPage.js
 // 平台列表
 const platforms = [
   'Google', 'Facebook', 'Twitter', 'Instagram', 'GitHub', 'LinkedIn', 'YouTube',
@@ -256,8 +255,10 @@ async function loadAccounts() {
       if (accounts.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="4" class="empty-state">
-              空空如也，请添加账户
+            <td colspan="4" class="empty-state-cell">
+              <div class="empty-state-content">
+                空空如也，请添加账户
+              </div>
             </td>
           </tr>
         `;
@@ -325,8 +326,10 @@ async function loadAccounts() {
     if (tbody) {  // 检查元素是否存在
       tbody.innerHTML = `
         <tr>
-          <td colspan="4" class="empty-state">
-            空空如也，请添加账户
+          <td colspan="4" class="empty-state-cell">
+            <div class="empty-state-content">
+              空空如也，请添加账户
+            </div>
           </td>
         </tr>
       `;
@@ -349,6 +352,8 @@ function openModal(title, account = null) {
   void modal.offsetWidth;
   // 添加show类以显示动画
   modal.classList.add('show');
+  // 防止页面抖动
+  document.body.style.overflow = 'hidden';
 
   if (account) {
     editingIndex = account.index;
@@ -387,6 +392,8 @@ function closeModal() {
     modal.classList.remove('show', 'closing');
     // 清除错误消息
     hideModalError();
+    // 恢复页面滚动
+    document.body.style.overflow = '';
   }, 150); // 与CSS中的动画时长匹配
 }
 
@@ -419,7 +426,7 @@ async function saveAccount() {
   try {
     // 等待数据保存完成后再关闭模态框
     await saveAccountsToDb(accounts);
-    // 只有在保存成功后才重新加载账户列表并关闭模态框
+    // 重新加载账户列表
     await loadAccounts();
     closeModal(); // 成功后才关闭模态框
   } catch (error) {
