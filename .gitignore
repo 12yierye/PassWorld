@@ -10,6 +10,10 @@ lerna-debug.log*
 # Dependencies
 node_modules/
 
+# Database files
+data/
+*.db
+
 # Production builds
 dist/
 dist-ssr/
@@ -61,5 +65,4 @@ temp/
 *.exe
 
 # Unnecessary files
-1.txt
-/data/
+Release note.*

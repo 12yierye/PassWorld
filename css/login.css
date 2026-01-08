@@ -6,6 +6,18 @@
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   background-color: white;
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .auth-section h2 {
@@ -32,6 +44,13 @@
   border-radius: 4px;
   font-size: 1rem;
   box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 .btn-login {
@@ -43,11 +62,13 @@
   border-radius: 4px;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .btn-login:hover:not(:disabled) {
   background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .btn-login:disabled {
@@ -63,10 +84,12 @@
 .link-text a {
   color: #007bff;
   text-decoration: none;
+  transition: all 0.3s;
 }
 
 .link-text a:hover {
   text-decoration: underline;
+  color: #0056b3;
 }
 
 .error-message,
@@ -75,6 +98,7 @@
   margin-bottom: 1rem;
   border-radius: 4px;
   display: none;
+  animation: fadeIn 0.3s ease-in;
 }
 
 .error-message {
@@ -112,6 +136,17 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 #camera-section {

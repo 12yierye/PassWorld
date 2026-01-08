@@ -40,7 +40,8 @@ function encrypt(text, password) {
 // 解密数据
 function decrypt(encrypted, password) {
   if (!encrypted) {
-    console.error('Attempting to decrypt empty or undefined data');
+    // 不输出错误，因为空数据可能是正常的初始状态
+    // console.error('Attempting to decrypt empty or undefined data');
     return '';
   }
   
@@ -62,7 +63,10 @@ function decrypt(encrypted, password) {
 
 // 哈希密码
 function hashPassword(password) {
-  console.log(`Preparing to hash password: ${password}`); // 调试信息
+  // 在生产环境中禁用调试日志
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`Preparing to hash password: ${password}`); // 调试信息
+  }
   
   if (!password) {
     console.error('Attempting to hash empty password');
@@ -73,13 +77,19 @@ function hashPassword(password) {
   const hash = crypto.scryptSync(password, salt, 64);
   const result = salt.toString('hex') + ':' + hash.toString('hex');
   
-  console.log(`Generated hash: ${result.substring(0, 30)}...`); // 输出哈希值的前30个字符用于调试
+  // 在生产环境中禁用调试日志
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`Generated hash: ${result.substring(0, 30)}...`); // 输出哈希值的前30个字符用于调试
+  }
   return result;
 }
 
 // 验证密码
 function verifyPassword(password, hashed) {
-  console.log(`Verifying password: ${password}, hash: ${hashed ? hashed.substring(0, 30) + '...' : 'null'}`); // 调试信息
+  // 在生产环境中禁用调试日志
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`Verifying password: ${password}, hash: ${hashed ? hashed.substring(0, 30) + '...' : 'null'}`); // 调试信息
+  }
   
   if (!hashed) {
     console.error('Password hash is null or undefined');
@@ -97,7 +107,10 @@ function verifyPassword(password, hashed) {
   const testHash = crypto.scryptSync(password, salt, 64);
   const isValid = crypto.timingSafeEqual(hash, testHash);
   
-  console.log(`Password verification result: ${isValid}`);
+  // 在生产环境中禁用调试日志
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`Password verification result: ${isValid}`);
+  }
   return isValid;
 }
 
@@ -195,13 +208,19 @@ async function createUser(username, password) {
     }
     
     const hashed = hashPassword(password);
-    console.log(`Creating account for user ${username}, hash: ${hashed.substring(0, 20)}...`); // 输出哈希值的前20个字符用于调试
+    // 在生产环境中禁用调试日志
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`Creating account for user ${username}, hash: ${hashed.substring(0, 20)}...`); // 输出哈希值的前20个字符用于调试
+    }
     
     userDb.run(`INSERT INTO users (username, hashed_password) VALUES (?, ?)`, [username, hashed]);
     const success = saveUserDatabaseToFile();
     
     if (success) {
-      console.log(`User ${username} created successfully`);
+      // 在生产环境中禁用调试日志
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`User ${username} created successfully`);
+      }
     } else {
       console.error(`Failed to save user ${username} to database`);
     }
@@ -221,47 +240,62 @@ async function createUser(username, password) {
 async function authenticateUser(username, password) {
   let stmt;
   try {
-    console.log(`Starting authentication for user: ${username}, current database user table total record count:`);
-    try {
-      const countStmt = userDb.prepare("SELECT COUNT(*) as count FROM users");
-      const countResult = countStmt.getAsObject();
-      console.log(`- Total users in database: ${countResult.count}`);
-      countStmt.free();
-      
-      // 查询具体的用户记录
-      const userCheckStmt = userDb.prepare("SELECT username, hashed_password IS NULL as is_null, hashed_password FROM users WHERE username = ?");
-      const userCheckResult = userCheckStmt.get([username]);
-      if (userCheckResult) {
-        console.log(`- User ${username} status in database - hashed_password_is_null: ${userCheckResult.is_null}, hashed_password_exists: ${!!userCheckResult.hashed_password}`);
-      } else {
-        console.log(`- User ${username} does not exist in database`);
+    // 在生产环境中禁用调试日志
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`Starting authentication for user: ${username}, current database user table total record count:`);
+      try {
+        const countStmt = userDb.prepare("SELECT COUNT(*) as count FROM users");
+        const countResult = countStmt.getAsObject();
+        console.log(`- Total users in database: ${countResult.count}`);
+        countStmt.free();
+        
+        // 查询具体的用户记录
+        const userCheckStmt = userDb.prepare("SELECT username, hashed_password IS NULL as is_null, hashed_password FROM users WHERE username = ?");
+        const userCheckResult = userCheckStmt.get([username]);
+        if (userCheckResult) {
+          console.log(`- User ${username} status in database - hashed_password_is_null: ${userCheckResult.is_null}, hashed_password_exists: ${!!userCheckResult.hashed_password}`);
+        } else {
+          console.log(`- User ${username} does not exist in database`);
+        }
+        userCheckStmt.free();
+      } catch (countErr) {
+        console.error('Error counting users:', countErr);
       }
-      userCheckStmt.free();
-    } catch (countErr) {
-      console.error('Error counting users:', countErr);
     }
 
     stmt = userDb.prepare(`SELECT hashed_password FROM users WHERE username = ?`);
     const row = stmt.get([username]);
     stmt.free();
     
-    // 根据数据库查询结果有效性验证规范，验证查询结果
+    // 根据数据库操作与用户认证调试规范，验证查询结果
     if (!row) {
-      console.log(`User ${username} does not exist`);
+      // 在生产环境中禁用调试日志
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`User ${username} does not exist`);
+      }
       return false;
     }
     
     if (!row.hashed_password) {
-      console.log(`User ${username} exists but password field is empty`);
+      // 在生产环境中禁用调试日志
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`User ${username} exists but password field is empty`);
+      }
       return false;
     }
     
     // 验证密码
     const isValid = verifyPassword(password, row.hashed_password);
     if (!isValid) {
-      console.log(`User ${username} password verification failed`);
+      // 在生产环境中禁用调试日志
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`User ${username} password verification failed`);
+      }
     } else {
-      console.log(`User ${username} authentication successful`);
+      // 在生产环境中禁用调试日志
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`User ${username} authentication successful`);
+      }
     }
     return isValid;
   } catch (error) {
@@ -298,12 +332,14 @@ async function loadAccounts(user, masterPassword) {
     const stmt = accountsDb.prepare(`SELECT encrypted_data FROM accounts WHERE user = ?`);
     const row = stmt.get([user]);
     stmt.free();
-    if (!row) return [];
+    if (!row) return []; // 如果没有找到数据，返回空数组
     const decrypted = decrypt(row.encrypted_data, masterPassword);
+    if (!decrypted) return []; // 如果解密结果为空，也返回空数组
     return JSON.parse(decrypted);
   } catch (e) {
     console.error('Loading account data failed:', e);
-    throw new Error('Invalid password');
+    // 返回空数组而不是抛出错误，这样即使密码错误也不会崩溃
+    return [];
   }
 }
 

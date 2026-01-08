@@ -29,27 +29,43 @@ document.addEventListener('DOMContentLoaded', async () => {
 function showError(message) {
   const errorDiv = document.getElementById('error-message');
   errorDiv.textContent = message;
-  errorDiv.style.display = 'block';
+  errorDiv.classList.remove('hidden');
   
   // 隐藏成功消息（如果正在显示）
-  document.getElementById('success-message').style.display = 'none';
+  document.getElementById('success-message').classList.add('hidden');
   
   setTimeout(() => {
-    errorDiv.style.display = 'none';
+    errorDiv.classList.add('hidden');
   }, 5000); // 5秒后隐藏
 }
 
 function showSuccess(message) {
   const successDiv = document.getElementById('success-message');
   successDiv.textContent = message;
-  successDiv.style.display = 'block';
+  successDiv.classList.remove('hidden');
   
   // 隐藏错误消息（如果正在显示）
-  document.getElementById('error-message').style.display = 'none';
+  document.getElementById('error-message').classList.add('hidden');
   
   setTimeout(() => {
-    successDiv.style.display = 'none';
+    successDiv.classList.add('hidden');
   }, 5000); // 5秒后隐藏
+}
+
+function showModalError(message) {
+  const errorDiv = document.getElementById('modal-error-message');
+  errorDiv.textContent = message;
+  errorDiv.classList.remove('hidden');
+  
+  // 5秒后隐藏错误消息
+  setTimeout(() => {
+    errorDiv.classList.add('hidden');
+  }, 5000);
+}
+
+function hideModalError() {
+  const errorDiv = document.getElementById('modal-error-message');
+  errorDiv.classList.add('hidden');
 }
 
 function setupEventListeners() {
@@ -126,6 +142,7 @@ function setupEventListeners() {
     }
   });
 
+  // 确保取消按钮事件监听器正确绑定
   document.getElementById('cancel-btn').addEventListener('click', closeModal);
   document.getElementById('save-btn').addEventListener('click', saveAccount);
 
@@ -133,30 +150,6 @@ function setupEventListeners() {
   document.getElementById('account-modal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('account-modal')) closeModal();
   });
-}
-
-let editingIndex = null;
-
-function openModal(title, account = null) {
-  document.getElementById('modal-title').textContent = title;
-  const modal = document.getElementById('account-modal');
-  modal.style.display = 'flex';
-
-  if (account) {
-    editingIndex = account.index;
-    document.getElementById('platform-input').value = account.platform;
-    document.getElementById('account-username-input').value = account.username;
-    document.getElementById('account-password-input').value = account.password;
-  } else {
-    editingIndex = null;
-    document.getElementById('platform-input').value = '';
-    document.getElementById('account-username-input').value = '';
-    document.getElementById('account-password-input').value = '';
-  }
-}
-
-function closeModal() {
-  document.getElementById('account-modal').style.display = 'none';
 }
 
 const { ipcRenderer } = require('electron');
@@ -173,12 +166,30 @@ async function saveAccountsToDb(accs) {
   try {
     const result = await ipcRenderer.invoke('db-save-accounts', currentUser, masterPassword, accs);
     if (!result.success) {
-      showError('保存失败: ' + result.error);
+      // 检查是否在添加/编辑账户的模态框中
+      if (editingIndex !== null || document.getElementById('modal-title').textContent === '添加账户') {
+        showModalError('保存失败: ' + result.error);
+        // 抛出错误，让调用方知道保存失败了
+        throw new Error(result.error);
+      } else {
+        showError('保存失败: ' + result.error);
+        // 抛出错误，让调用方知道保存失败了
+        throw new Error(result.error);
+      }
     } else {
       showSuccess('保存成功');
+      // 返回成功结果（不再在这里关闭模态框）
+      return result;
     }
   } catch (err) {
-    showError('保存失败: ' + err.message);
+    // 检查是否在添加/编辑账户的模态框中
+    if (editingIndex !== null || document.getElementById('modal-title').textContent === '添加账户') {
+      showModalError('保存失败: ' + err.message);
+    } else {
+      showError('保存失败: ' + err.message);
+    }
+    // 抛出错误，让调用方知道保存失败了
+    throw err;
   }
 }
 
@@ -195,8 +206,8 @@ async function loadAccounts() {
     if (accounts.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="4" style="text-align: center; height: 200px; vertical-align: middle;">
-            <h1 style="color: #ccc; font-size: 20px;">空空如也，请添加密码</h1>
+          <td colspan="4" class="empty-state">
+            空空如也，请添加账户
           </td>
         </tr>
       `;
@@ -225,11 +236,24 @@ async function loadAccounts() {
         const index = e.target.dataset.index;
         if (confirm('确定删除？')) {
           accounts.splice(index, 1);
-          saveAccountsToDb(accounts);
-          loadAccounts();
+          // 保存账户并等待完成后再重新加载
+          saveAccountsToDb(accounts)
+            .then(() => {
+              // 保存成功后重新加载账户列表
+              return loadAccounts();
+            })
+            .catch(err => {
+              // 删除操作不在模态框中，所以可以显示在主界面上
+              showError('删除失败: ' + err.message);
+            });
         }
-      } else if (e.target.classList.contains('password-cell')) {
-        const cell = e.target;
+      } else if (e.target.classList.contains('password-cell') || e.target.classList.contains('password-text')) {
+        let cell;
+        if (e.target.classList.contains('password-text')) {
+          cell = e.target.closest('.password-cell');
+        } else {
+          cell = e.target;
+        }
         const span = cell.querySelector('.password-text');
         if (span.textContent === '******') {
           span.textContent = cell.dataset.password;
@@ -245,12 +269,51 @@ async function loadAccounts() {
     const tbody = document.getElementById('accounts-tbody');
     tbody.innerHTML = `
       <tr>
-        <td colspan="4" style="text-align: center; height: 200px; vertical-align: middle;">
-          <h1 style="color: #ccc; font-size: 20px;">空空如也，请添加密码</h1>
+        <td colspan="4" class="empty-state">
+          空空如也，请添加账户
         </td>
       </tr>
     `;
   }
+}
+
+let editingIndex = null;
+
+function openModal(title, account = null) {
+  document.getElementById('modal-title').textContent = title;
+  const modal = document.getElementById('account-modal');
+  // 移除可能存在的关闭类
+  modal.classList.remove('closing', 'hidden');
+  // 设置为显示状态
+  modal.style.display = 'flex';
+  // 触发重排以确保display生效
+  void modal.offsetWidth;
+  // 添加show类以显示动画
+  modal.classList.add('show');
+
+  if (account) {
+    editingIndex = account.index;
+    document.getElementById('platform-input').value = account.platform;
+    document.getElementById('account-username-input').value = account.username;
+    document.getElementById('account-password-input').value = account.password;
+  } else {
+    editingIndex = null;
+    document.getElementById('platform-input').value = '';
+    document.getElementById('account-username-input').value = '';
+    document.getElementById('account-password-input').value = '';
+  }
+}
+
+function closeModal() {
+  const modal = document.getElementById('account-modal');
+  // 添加关闭动画类
+  modal.classList.add('closing');
+  
+  // 动画结束后隐藏模态框
+  setTimeout(() => {
+    modal.classList.remove('show', 'closing');
+    modal.classList.add('hidden');
+  }, 150); // 与CSS中的动画时长匹配
 }
 
 async function saveAccount() {
@@ -259,7 +322,7 @@ async function saveAccount() {
   const password = document.getElementById('account-password-input').value;
 
   if (!platform || !username) {
-    showError('平台和用户名必填');
+    showModalError('平台和用户名必填');
     return;
   }
 
@@ -269,7 +332,14 @@ async function saveAccount() {
     accounts.push({ platform, username, password });
   }
 
-  await saveAccountsToDb(accounts);
-  loadAccounts();
-  closeModal();
+  try {
+    // 等待数据保存完成后再关闭模态框
+    await saveAccountsToDb(accounts);
+    // 只有在保存成功后才重新加载账户列表并关闭模态框
+    await loadAccounts();
+    closeModal(); // 成功后才关闭模态框
+  } catch (error) {
+    // 显示错误但不关闭模态框
+    showModalError('保存失败: ' + error.message);
+  }
 }
