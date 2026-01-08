@@ -249,18 +249,18 @@ async function loadAccounts() {
     const tbody = document.getElementById('accounts-tbody');
     
     if (tbody) {  // 检查元素是否存在
+      // 清空表格内容
       tbody.innerHTML = '';
 
       // 检查是否有账户数据，如果没有则显示空状态
       if (accounts.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="4" class="empty-state-cell">
-              <div class="empty-state-content">
-                空空如也，请添加账户
-              </div>
-            </td>
-          </tr>
+        const emptyRow = tbody.insertRow();
+        emptyRow.innerHTML = `
+          <td colspan="4" class="empty-state-cell">
+            <div class="empty-state-content">
+              空空如也，请添加账户
+            </div>
+          </td>
         `;
       } else {
         accounts.forEach((acc, index) => {
@@ -324,14 +324,15 @@ async function loadAccounts() {
     // 仍然显示空状态
     const tbody = document.getElementById('accounts-tbody');
     if (tbody) {  // 检查元素是否存在
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="4" class="empty-state-cell">
-            <div class="empty-state-content">
-              空空如也，请添加账户
-            </div>
-          </td>
-        </tr>
+      // 清空表格内容
+      tbody.innerHTML = '';
+      const emptyRow = tbody.insertRow();
+      emptyRow.innerHTML = `
+        <td colspan="4" class="empty-state-cell">
+          <div class="empty-state-content">
+            空空如也，请添加账户
+          </div>
+        </td>
       `;
     }
   }
