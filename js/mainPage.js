@@ -28,44 +28,64 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function showError(message) {
   const errorDiv = document.getElementById('error-message');
-  errorDiv.textContent = message;
-  errorDiv.classList.remove('hidden');
-  
-  // 隐藏成功消息（如果正在显示）
-  document.getElementById('success-message').classList.add('hidden');
-  
-  setTimeout(() => {
-    errorDiv.classList.add('hidden');
-  }, 5000); // 5秒后隐藏
+  if (errorDiv) {  // 检查元素是否存在
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('hidden');
+    
+    // 隐藏成功消息（如果正在显示）
+    const successDiv = document.getElementById('success-message');
+    if (successDiv) {
+      successDiv.classList.add('hidden');
+    }
+    
+    setTimeout(() => {
+      if (errorDiv) {  // 检查元素是否存在
+        errorDiv.classList.add('hidden');
+      }
+    }, 5000); // 5秒后隐藏
+  }
 }
 
 function showSuccess(message) {
   const successDiv = document.getElementById('success-message');
-  successDiv.textContent = message;
-  successDiv.classList.remove('hidden');
-  
-  // 隐藏错误消息（如果正在显示）
-  document.getElementById('error-message').classList.add('hidden');
-  
-  setTimeout(() => {
-    successDiv.classList.add('hidden');
-  }, 5000); // 5秒后隐藏
+  if (successDiv) {  // 检查元素是否存在
+    successDiv.textContent = message;
+    successDiv.classList.remove('hidden');
+    
+    // 隐藏错误消息（如果正在显示）
+    const errorDiv = document.getElementById('error-message');
+    if (errorDiv) {
+      errorDiv.classList.add('hidden');
+    }
+    
+    setTimeout(() => {
+      if (successDiv) {  // 检查元素是否存在
+        successDiv.classList.add('hidden');
+      }
+    }, 5000); // 5秒后隐藏
+  }
 }
 
 function showModalError(message) {
   const errorDiv = document.getElementById('modal-error-message');
-  errorDiv.textContent = message;
-  errorDiv.classList.remove('hidden');
-  
-  // 5秒后隐藏错误消息
-  setTimeout(() => {
-    errorDiv.classList.add('hidden');
-  }, 5000);
+  if (errorDiv) {  // 检查元素是否存在
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('hidden');
+    
+    // 5秒后隐藏错误消息
+    setTimeout(() => {
+      if (errorDiv) {  // 再次检查元素是否存在
+        errorDiv.classList.add('hidden');
+      }
+    }, 5000);
+  }
 }
 
 function hideModalError() {
   const errorDiv = document.getElementById('modal-error-message');
-  errorDiv.classList.add('hidden');
+  if (errorDiv) {  // 检查元素是否存在
+    errorDiv.classList.add('hidden');
+  }
 }
 
 function setupEventListeners() {
@@ -142,13 +162,15 @@ function setupEventListeners() {
     }
   });
 
-  // 确保取消按钮事件监听器正确绑定
+  // 为取消按钮添加事件监听器
   document.getElementById('cancel-btn').addEventListener('click', closeModal);
   document.getElementById('save-btn').addEventListener('click', saveAccount);
 
-  // 关闭模态框点击遮罩
+  // 关闭模态框点击遮罩 - 修复死循环问题
   document.getElementById('account-modal').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('account-modal')) closeModal();
+    if (e.target === document.getElementById('account-modal')) {
+      closeModal();
+    }
   });
 }
 
@@ -200,10 +222,81 @@ async function loadAccounts() {
     const result = await ipcRenderer.invoke('db-load-accounts', currentUser, masterPassword);
     accounts = result.accounts || [];
     const tbody = document.getElementById('accounts-tbody');
-    tbody.innerHTML = '';
+    
+    if (tbody) {  // 检查元素是否存在
+      tbody.innerHTML = '';
 
-    // 检查是否有账户数据，如果没有则显示空状态
-    if (accounts.length === 0) {
+      // 检查是否有账户数据，如果没有则显示空状态
+      if (accounts.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="empty-state">
+              空空如也，请添加账户
+            </td>
+          </tr>
+        `;
+      } else {
+        accounts.forEach((acc, index) => {
+          const row = tbody.insertRow();
+          row.innerHTML = `
+            <td title="${acc.platform}">${acc.platform}</td>
+            <td title="${acc.username}">${acc.username}</td>
+            <td class="password-cell" data-password="${acc.password}" title="${acc.password}"><span class="password-text">******</span></td>
+            <td>
+              <button class="action-btn edit" data-index="${index}">编辑</button>
+              <button class="action-btn delete" data-index="${index}">删除</button>
+            </td>
+          `;
+        });
+      }
+
+      // 绑定操作按钮事件（委托）
+      tbody.addEventListener('click', (e) => {
+        if (e.target.classList.contains('edit')) {
+          const index = e.target.dataset.index;
+          const acc = accounts[index];
+          openModal('编辑账户', { ...acc, index });
+        } else if (e.target.classList.contains('delete')) {
+          const index = e.target.dataset.index;
+          if (confirm('确定删除？')) {
+            accounts.splice(index, 1);
+            // 保存账户并等待完成后再重新加载
+            saveAccountsToDb(accounts)
+              .then(() => {
+                // 保存成功后重新加载账户列表
+                return loadAccounts();
+              })
+              .catch(err => {
+                // 删除操作不在模态框中，所以可以显示在主界面上
+                showError('删除失败: ' + err.message);
+              });
+          }
+        } else if (e.target.classList.contains('password-cell') || e.target.classList.contains('password-text')) {
+          let cell;
+          if (e.target.classList.contains('password-text')) {
+            cell = e.target.closest('.password-cell');
+          } else {
+            cell = e.target;
+          }
+          if (cell) {
+            const span = cell.querySelector('.password-text');
+            if (span) {
+              if (span.textContent === '******') {
+                span.textContent = cell.dataset.password;
+              } else {
+                span.textContent = '******';
+              }
+            }
+          }
+        }
+      });
+    }
+  } catch (err) {
+    // 如果是新用户没有账户数据，这可能是正常的，所以不显示错误
+    console.log('Loading accounts failed: ' + err.message);
+    // 仍然显示空状态
+    const tbody = document.getElementById('accounts-tbody');
+    if (tbody) {  // 检查元素是否存在
       tbody.innerHTML = `
         <tr>
           <td colspan="4" class="empty-state">
@@ -211,69 +304,7 @@ async function loadAccounts() {
           </td>
         </tr>
       `;
-    } else {
-      accounts.forEach((acc, index) => {
-        const row = tbody.insertRow();
-        row.innerHTML = `
-          <td title="${acc.platform}">${acc.platform}</td>
-          <td title="${acc.username}">${acc.username}</td>
-          <td class="password-cell" data-password="${acc.password}" title="${acc.password}"><span class="password-text">******</span></td>
-          <td>
-            <button class="action-btn edit" data-index="${index}">编辑</button>
-            <button class="action-btn delete" data-index="${index}">删除</button>
-          </td>
-        `;
-      });
     }
-
-    // 绑定操作按钮事件（委托）
-    tbody.addEventListener('click', (e) => {
-      if (e.target.classList.contains('edit')) {
-        const index = e.target.dataset.index;
-        const acc = accounts[index];
-        openModal('编辑账户', { ...acc, index });
-      } else if (e.target.classList.contains('delete')) {
-        const index = e.target.dataset.index;
-        if (confirm('确定删除？')) {
-          accounts.splice(index, 1);
-          // 保存账户并等待完成后再重新加载
-          saveAccountsToDb(accounts)
-            .then(() => {
-              // 保存成功后重新加载账户列表
-              return loadAccounts();
-            })
-            .catch(err => {
-              // 删除操作不在模态框中，所以可以显示在主界面上
-              showError('删除失败: ' + err.message);
-            });
-        }
-      } else if (e.target.classList.contains('password-cell') || e.target.classList.contains('password-text')) {
-        let cell;
-        if (e.target.classList.contains('password-text')) {
-          cell = e.target.closest('.password-cell');
-        } else {
-          cell = e.target;
-        }
-        const span = cell.querySelector('.password-text');
-        if (span.textContent === '******') {
-          span.textContent = cell.dataset.password;
-        } else {
-          span.textContent = '******';
-        }
-      }
-    });
-  } catch (err) {
-    // 如果是新用户没有账户数据，这可能是正常的，所以不显示错误
-    console.log('Loading accounts failed: ' + err.message);
-    // 仍然显示空状态
-    const tbody = document.getElementById('accounts-tbody');
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="4" class="empty-state">
-          空空如也，请添加账户
-        </td>
-      </tr>
-    `;
   }
 }
 
@@ -284,8 +315,10 @@ function openModal(title, account = null) {
   const modal = document.getElementById('account-modal');
   // 移除可能存在的关闭类
   modal.classList.remove('closing', 'hidden');
-  // 设置为显示状态
+  // 确保显示状态正确
   modal.style.display = 'flex';
+  // 清除任何现有的错误消息
+  hideModalError();
   // 触发重排以确保display生效
   void modal.offsetWidth;
   // 添加show类以显示动画
@@ -311,8 +344,10 @@ function closeModal() {
   
   // 动画结束后隐藏模态框
   setTimeout(() => {
+    modal.style.display = 'none';
     modal.classList.remove('show', 'closing');
-    modal.classList.add('hidden');
+    // 清除错误消息
+    hideModalError();
   }, 150); // 与CSS中的动画时长匹配
 }
 

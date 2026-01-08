@@ -16,10 +16,10 @@
 
     <div id="accounts-section" class="accounts-section">
       <div class="controls">
-        <h2>账户列表</h2>
+        <h2>Accounts List</h2>
         <div>
-          <button id="add-account-btn" class="btn-add">添加账户</button>
-          <button id="logout-btn" class="btn-logout">Logout</button>
+          <button type="button" id="add-account-btn" class="btn-add">New</button>
+          <button type="button" id="logout-btn" class="btn-logout">Logout</button>
         </div>
       </div>
       <div id="error-message" class="error-message hidden"></div>
@@ -28,10 +28,10 @@
         <table id="accounts-table">
           <thead>
             <tr>
-              <th>平台</th>
-              <th>用户名</th>
-              <th>密码</th>
-              <th>操作</th>
+              <th>Platform</th>
+              <th>Username</th>
+              <th>Password</th>
+              <th>Operate</th>
             </tr>
           </thead>
           <tbody id="accounts-tbody">
@@ -49,21 +49,21 @@
         </div>
         <div id="modal-error-message" class="error-message hidden"></div>
         <div class="form-group">
-          <label for="platform-input">平台</label>
-          <input type="text" id="platform-input" placeholder="例如：Google, Facebook" />
+          <label for="platform-input">Platform</label>
+          <input type="text" id="platform-input" placeholder="Google, Facebook, Twitter..." />
           <div id="platform-suggestions" class="platform-suggestions hidden"></div>
         </div>
         <div class="form-group">
-          <label for="account-username-input">用户名</label>
-          <input type="text" id="account-username-input" placeholder="账户用户名" />
+          <label for="account-username-input">Username</label>
+          <input type="text" id="account-username-input" placeholder="Username" />
         </div>
         <div class="form-group">
-          <label for="account-password-input">密码</label>
-          <input type="password" id="account-password-input" placeholder="账户密码" />
+          <label for="account-password-input">Password</label>
+          <input type="password" id="account-password-input" placeholder="Password" />
         </div>
         <div class="modal-footer">
-          <button type="button" id="cancel-btn">取消</button>
-          <button type="button" id="save-btn">保存</button>
+          <button type="button" id="cancel-btn">Cancel</button>
+          <button type="button" id="save-btn">Save</button>
         </div>
       </div>
     </div>
