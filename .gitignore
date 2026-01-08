@@ -51,7 +51,7 @@ temp/
 *.tmp
 *.temp
 
-# Large files (size > 100MB)
+# Large files
 *.zip
 *.tar
 *.gz
@@ -60,4 +60,6 @@ temp/
 *.dmg
 *.exe
 
+# Unnecessary files
 1.txt
+/data/

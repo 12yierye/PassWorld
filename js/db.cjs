@@ -39,7 +39,17 @@ function encrypt(text, password) {
 
 // 解密数据
 function decrypt(encrypted, password) {
+  if (!encrypted) {
+    console.error('Attempting to decrypt empty or undefined data');
+    return '';
+  }
+  
   const parts = encrypted.split(':');
+  if (parts.length !== 3) {
+    console.error('Invalid encrypted data format, parts:', parts);
+    throw new Error('Invalid encrypted data format');
+  }
+  
   const salt = Buffer.from(parts[0], 'hex');
   const iv = Buffer.from(parts[1], 'hex');
   const encryptedText = parts[2];
@@ -52,10 +62,10 @@ function decrypt(encrypted, password) {
 
 // 哈希密码
 function hashPassword(password) {
-  console.log(`准备哈希密码: ${password}`); // 调试信息
+  console.log(`Preparing to hash password: ${password}`); // 调试信息
   
   if (!password) {
-    console.error('尝试对空密码进行哈希');
+    console.error('Attempting to hash empty password');
     return null;
   }
   
@@ -63,22 +73,22 @@ function hashPassword(password) {
   const hash = crypto.scryptSync(password, salt, 64);
   const result = salt.toString('hex') + ':' + hash.toString('hex');
   
-  console.log(`生成的哈希值: ${result.substring(0, 30)}...`); // 输出哈希值的前30个字符用于调试
+  console.log(`Generated hash: ${result.substring(0, 30)}...`); // 输出哈希值的前30个字符用于调试
   return result;
 }
 
 // 验证密码
 function verifyPassword(password, hashed) {
-  console.log(`验证密码: ${password}, 哈希值: ${hashed ? hashed.substring(0, 30) + '...' : 'null'}`); // 调试信息
+  console.log(`Verifying password: ${password}, hash: ${hashed ? hashed.substring(0, 30) + '...' : 'null'}`); // 调试信息
   
   if (!hashed) {
-    console.error('密码哈希值为空或未定义');
+    console.error('Password hash is null or undefined');
     return false;
   }
   
   const parts = hashed.split(':');
   if (parts.length !== 2) {
-    console.error('密码哈希格式不正确:', hashed);
+    console.error('Password hash format is incorrect:', hashed);
     return false;
   }
   
@@ -87,7 +97,7 @@ function verifyPassword(password, hashed) {
   const testHash = crypto.scryptSync(password, salt, 64);
   const isValid = crypto.timingSafeEqual(hash, testHash);
   
-  console.log(`密码验证结果: ${isValid}`);
+  console.log(`Password verification result: ${isValid}`);
   return isValid;
 }
 
@@ -98,18 +108,22 @@ async function initDatabases() {
   });
   
   // 初始化用户数据库
-  console.log(`检查用户数据库文件: ${userDbPath}, 是否存在: ${fs.existsSync(userDbPath)}`);
+  console.log(`Checking user database file: ${userDbPath}, exists: ${fs.existsSync(userDbPath)}`);
   if (fs.existsSync(userDbPath)) {
     const userData = fs.readFileSync(userDbPath);
     userDb = new SQL.Database(userData);
     // 验证数据库中是否有用户数据
-    const stmt = userDb.prepare("SELECT COUNT(*) as count FROM users");
-    const result = stmt.get();
-    console.log(`用户数据库中用户表记录数: ${result.count}`);
-    stmt.free();
+    try {
+      const stmt = userDb.prepare("SELECT COUNT(*) as count FROM users");
+      const result = stmt.getAsObject();
+      console.log(`User database user table record count: ${result.count}`);
+      stmt.free();
+    } catch (error) {
+      console.error('Error counting users:', error);
+    }
   } else {
     userDb = new SQL.Database();
-    console.log('创建新的空用户数据库');
+    console.log('Creating new empty user database');
   }
   
   // 确保用户表存在
@@ -119,7 +133,7 @@ async function initDatabases() {
   )`);
   
   // 初始化账户数据库
-  console.log(`检查账户数据库文件: ${accountsDbPath}, 是否存在: ${fs.existsSync(accountsDbPath)}`);
+  console.log(`Checking account database file: ${accountsDbPath}, exists: ${fs.existsSync(accountsDbPath)}`);
   if (fs.existsSync(accountsDbPath)) {
     const accountsData = fs.readFileSync(accountsDbPath);
     accountsDb = new SQL.Database(accountsData);
@@ -148,7 +162,7 @@ function saveUserDatabaseToFile() {
     
     return true;
   } catch (error) {
-    console.error('保存用户数据库失败:', error);
+    console.error('Saving user database failed:', error);
     return false;
   }
 }
@@ -167,7 +181,7 @@ function saveAccountsDatabaseToFile() {
     
     return true;
   } catch (error) {
-    console.error('保存账户数据库失败:', error);
+    console.error('Saving account database failed:', error);
     return false;
   }
 }
@@ -177,24 +191,24 @@ async function createUser(username, password) {
   try {
     // 确保密码不为空
     if (!password) {
-      throw new Error('密码不能为空');
+      throw new Error('Password cannot be empty');
     }
     
     const hashed = hashPassword(password);
-    console.log(`为用户 ${username} 创建账户，哈希值: ${hashed.substring(0, 20)}...`); // 输出哈希值的前20个字符用于调试
+    console.log(`Creating account for user ${username}, hash: ${hashed.substring(0, 20)}...`); // 输出哈希值的前20个字符用于调试
     
     userDb.run(`INSERT INTO users (username, hashed_password) VALUES (?, ?)`, [username, hashed]);
     const success = saveUserDatabaseToFile();
     
     if (success) {
-      console.log(`用户 ${username} 成功创建`);
+      console.log(`User ${username} created successfully`);
     } else {
-      console.error(`保存用户 ${username} 到数据库失败`);
+      console.error(`Failed to save user ${username} to database`);
     }
     
     return success;
   } catch (error) {
-    console.error('创建用户失败:', error);
+    console.error('Creating user failed:', error);
     // 检查是否是唯一性约束错误（用户名已存在）
     if (error.message && error.message.includes('UNIQUE constraint failed')) {
       throw new Error('UNIQUE constraint failed');
@@ -207,24 +221,24 @@ async function createUser(username, password) {
 async function authenticateUser(username, password) {
   let stmt;
   try {
-    console.log(`开始认证用户: ${username}, 当前数据库用户表总记录数:`);
+    console.log(`Starting authentication for user: ${username}, current database user table total record count:`);
     try {
       const countStmt = userDb.prepare("SELECT COUNT(*) as count FROM users");
-      const countResult = countStmt.get();
-      console.log(`- 数据库中用户总数: ${countResult.count}`);
+      const countResult = countStmt.getAsObject();
+      console.log(`- Total users in database: ${countResult.count}`);
       countStmt.free();
       
       // 查询具体的用户记录
       const userCheckStmt = userDb.prepare("SELECT username, hashed_password IS NULL as is_null, hashed_password FROM users WHERE username = ?");
       const userCheckResult = userCheckStmt.get([username]);
       if (userCheckResult) {
-        console.log(`- 用户${username}在数据库中的状态 - hashed_password_is_null: ${userCheckResult.is_null}, hashed_password存在: ${!!userCheckResult.hashed_password}`);
+        console.log(`- User ${username} status in database - hashed_password_is_null: ${userCheckResult.is_null}, hashed_password_exists: ${!!userCheckResult.hashed_password}`);
       } else {
-        console.log(`- 用户${username}在数据库中不存在`);
+        console.log(`- User ${username} does not exist in database`);
       }
       userCheckStmt.free();
     } catch (countErr) {
-      console.error('统计用户数量时出错:', countErr);
+      console.error('Error counting users:', countErr);
     }
 
     stmt = userDb.prepare(`SELECT hashed_password FROM users WHERE username = ?`);
@@ -233,25 +247,25 @@ async function authenticateUser(username, password) {
     
     // 根据数据库查询结果有效性验证规范，验证查询结果
     if (!row) {
-      console.log(`用户 ${username} 不存在`);
+      console.log(`User ${username} does not exist`);
       return false;
     }
     
     if (!row.hashed_password) {
-      console.log(`用户 ${username} 存在但密码字段为空`);
+      console.log(`User ${username} exists but password field is empty`);
       return false;
     }
     
     // 验证密码
     const isValid = verifyPassword(password, row.hashed_password);
     if (!isValid) {
-      console.log(`用户 ${username} 密码验证失败`);
+      console.log(`User ${username} password verification failed`);
     } else {
-      console.log(`用户 ${username} 认证成功`);
+      console.log(`User ${username} authentication successful`);
     }
     return isValid;
   } catch (error) {
-    console.error('认证用户时发生错误:', error);
+    console.error('Error authenticating user:', error);
     return false;
   }
 }
@@ -273,7 +287,7 @@ async function saveAccounts(user, masterPassword, accounts) {
     }
     return saveAccountsDatabaseToFile();
   } catch (error) {
-    console.error('保存账户数据失败:', error);
+    console.error('Saving account data failed:', error);
     return false;
   }
 }
@@ -288,7 +302,7 @@ async function loadAccounts(user, masterPassword) {
     const decrypted = decrypt(row.encrypted_data, masterPassword);
     return JSON.parse(decrypted);
   } catch (e) {
-    console.error('加载账户数据失败:', e);
+    console.error('Loading account data failed:', e);
     throw new Error('Invalid password');
   }
 }
@@ -302,7 +316,7 @@ async function checkUserExists(username) {
     stmt.free();
     return !!row; // 如果查询结果不为null，则用户存在
   } catch (error) {
-    console.error('检查用户是否存在时发生错误:', error);
+    console.error('Error checking if user exists:', error);
     return false;
   }
 }

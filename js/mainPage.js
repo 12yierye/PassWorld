@@ -72,7 +72,7 @@ function setupEventListeners() {
 
     if (clickCount > 20 && !isEggActive) {
       isEggActive = true;
-      alert('真的有这么多账户吗щ(ʘ╻ʘ)щ');
+      alert('真的有这么多账户吗 o(>﹏<)o');
       // 重置计数
       setTimeout(() => {
         clickCount = 0;
@@ -191,18 +191,29 @@ async function loadAccounts() {
     const tbody = document.getElementById('accounts-tbody');
     tbody.innerHTML = '';
 
-    accounts.forEach((acc, index) => {
-      const row = tbody.insertRow();
-      row.innerHTML = `
-        <td title="${acc.platform}">${acc.platform}</td>
-        <td title="${acc.username}">${acc.username}</td>
-        <td class="password-cell" data-password="${acc.password}" title="${acc.password}"><span class="password-text">******</span></td>
-        <td>
-          <button class="action-btn edit" data-index="${index}">编辑</button>
-          <button class="action-btn delete" data-index="${index}">删除</button>
-        </td>
+    // 检查是否有账户数据，如果没有则显示空状态
+    if (accounts.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" style="text-align: center; height: 200px; vertical-align: middle;">
+            <h1 style="color: #ccc; font-size: 20px;">空空如也，请添加密码</h1>
+          </td>
+        </tr>
       `;
-    });
+    } else {
+      accounts.forEach((acc, index) => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+          <td title="${acc.platform}">${acc.platform}</td>
+          <td title="${acc.username}">${acc.username}</td>
+          <td class="password-cell" data-password="${acc.password}" title="${acc.password}"><span class="password-text">******</span></td>
+          <td>
+            <button class="action-btn edit" data-index="${index}">编辑</button>
+            <button class="action-btn delete" data-index="${index}">删除</button>
+          </td>
+        `;
+      });
+    }
 
     // 绑定操作按钮事件（委托）
     tbody.addEventListener('click', (e) => {
@@ -228,7 +239,17 @@ async function loadAccounts() {
       }
     });
   } catch (err) {
-    showError('加载失败: ' + err.message);
+    // 如果是新用户没有账户数据，这可能是正常的，所以不显示错误
+    console.log('Loading accounts failed: ' + err.message);
+    // 仍然显示空状态
+    const tbody = document.getElementById('accounts-tbody');
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align: center; height: 200px; vertical-align: middle;">
+          <h1 style="color: #ccc; font-size: 20px;">空空如也，请添加密码</h1>
+        </td>
+      </tr>
+    `;
   }
 }
 

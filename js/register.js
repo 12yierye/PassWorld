@@ -28,21 +28,9 @@ function showSuccess(message) {
 
 document.getElementById('register-btn').addEventListener('click', async () => {
   const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirm-password').value;
 
-  if (!username || !password || !confirmPassword) {
-    showError('请输入用户名和密码');
-    return;
-  }
-
-  if (password.length < 6) {
-    showError('密码至少6位');
-    return;
-  }
-
-  if (password !== confirmPassword) {
-    showError('两次输入的密码不一致');
+  if (!username) {
+    showError('请输入用户名');
     return;
   }
 
@@ -52,17 +40,16 @@ document.getElementById('register-btn').addEventListener('click', async () => {
   registerBtn.textContent = '注册中...';
 
   try {
-    const result = await ipcRenderer.invoke('db-create-user', username, password);
+    // 生成随机密码用于注册（内部使用，用户不需要知道）
+    const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    
+    const result = await ipcRenderer.invoke('db-create-user', username, randomPassword);
     if (result.success) {
       showSuccess('注册成功！');
-      // 清空表单
-      document.getElementById('username').value = '';
-      document.getElementById('password').value = '';
-      document.getElementById('confirm-password').value = '';
       
-      // 2秒后自动跳转到登录页面
+      // 2秒后跳转到人脸识别页面
       setTimeout(() => {
-        window.location.href = 'login.html';
+        window.location.href = `faceAuth.html?username=${encodeURIComponent(username)}&action=register`;
       }, 2000);
     } else {
       // 检查是否是用户名已存在的错误
@@ -76,8 +63,10 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     showError('注册失败: ' + err.message);
   } finally {
     // 重新启用按钮
-    registerBtn.disabled = false;
-    registerBtn.textContent = '注册';
+    if (!document.querySelector('.success-section')) {
+      registerBtn.disabled = false;
+      registerBtn.textContent = '注册';
+    }
   }
 });
 

@@ -1,59 +1,38 @@
-.register-section {
-  padding: 40px;
-  text-align: center;
+/* 注册页面样式 */
+.container {
+  max-width: 500px;
+  margin: 10vh auto;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: white;
 }
 
 .register-section h2 {
-  margin-bottom: 25px;
-  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
   font-size: 1.5em;
 }
 
-.error-message {
-  color: #e74c3c;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  padding: 10px;
-  margin-bottom: 20px;
-  border-radius: 5px;
-  font-weight: bold;
-  display: none;
-}
-
-.success-message {
-  color: #27ae60;
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
-  padding: 10px;
-  margin-bottom: 20px;
-  border-radius: 5px;
-  font-weight: bold;
-  display: none;
-}
-
-.register-form {
-  max-width: 400px;
-  margin: 0 auto;
-}
-
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
   text-align: left;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
   color: #555;
-  font-weight: bold;
 }
 
 .form-group input {
   width: 100%;
-  padding: 10px;
+  padding: 0.75rem;
   border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
+  border-radius: 4px;
+  font-size: 1rem;
   box-sizing: border-box;
 }
 
@@ -64,31 +43,78 @@
 
 .btn-register {
   width: 100%;
-  padding: 12px;
-  background-color: #27ae60;
+  padding: 0.75rem;
+  background-color: #28a745;
   color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 16px;
+  border-radius: 4px;
+  font-size: 1.1rem;
   cursor: pointer;
-  margin-bottom: 10px;
+  transition: background-color 0.2s;
 }
 
-.btn-register:hover {
-  background-color: #229954;
+.btn-register:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.btn-register:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 
 .btn-back {
   width: 100%;
-  padding: 12px;
-  background-color: #95a5a6;
+  padding: 0.75rem;
+  background-color: #6c757d;
   color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 16px;
+  border-radius: 4px;
+  font-size: 1.1rem;
   cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 0.5rem;
 }
 
 .btn-back:hover {
-  background-color: #7f8c8d;
+  background-color: #5a6268;
+}
+
+.error-message,
+.success-message {
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  display: none;
+}
+
+.error-message {
+  background-color: #ffebee;  /* 更浅的红色背景 */
+  color: #c62828;            /* 深一点的红色字体 */
+  border: 1px solid #ffcdd2; /* 淡红色边框 */
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.hidden {
+  display: none;
+}
+
+.success-section {
+  text-align: center;
+}
+
+.success-icon {
+  width: 60px;
+  height: 60px;
+  line-height: 60px;
+  border-radius: 50%;
+  background-color: #28a745;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 auto 1rem;
 }

@@ -1,5 +1,17 @@
 const { ipcRenderer } = require('electron');
 
+document.getElementById('login-btn').addEventListener('click', async () => {
+  const username = document.getElementById('username').value.trim();
+
+  if (!username) {
+    showError('请输入用户名');
+    return;
+  }
+
+  // 跳转到人脸识别页面
+  window.location.href = `faceAuth.html?username=${encodeURIComponent(username)}&action=login`;
+});
+
 function showError(message) {
   const errorDiv = document.getElementById('error-message');
   errorDiv.textContent = message;
@@ -26,37 +38,6 @@ function showSuccess(message) {
   }, 5000); // 5秒后隐藏
 }
 
-document.getElementById('login-btn').addEventListener('click', async () => {
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
-
-  if (!username || !password) {
-    showError('请输入用户名和密码');
-    return;
-  }
-
-  // 禁用按钮以防止重复提交
-  const loginBtn = document.getElementById('login-btn');
-  loginBtn.disabled = true;
-  loginBtn.textContent = '登录中...';
-
-  try {
-    const result = await ipcRenderer.invoke('db-authenticate', username, password);
-    if (result.success) {
-      PassWorld.loginUser(username, password);
-      window.location.href = 'mainPage.html';
-    } else {
-      showError('用户名或密码错误');
-    }
-  } catch (err) {
-    showError('登录失败: ' + err.message);
-  } finally {
-    // 无论成功还是失败，都要重新启用按钮
-    loginBtn.disabled = false;
-    loginBtn.textContent = 'Login';
-  }
-});
-
 document.getElementById('face-id-btn').addEventListener('click', async () => {
   const username = document.getElementById('username').value.trim();
 
@@ -71,11 +52,17 @@ document.getElementById('face-id-btn').addEventListener('click', async () => {
   faceIdBtn.textContent = '验证中...';
 
   // 显示人脸识别加载界面
-  document.getElementById('face-id-loading').style.display = 'block';
+  document.getElementById('face-id-section').innerHTML = `
+    <div class="face-id-loading">
+      <div class="spinner"></div>
+      <p>人脸识别中...</p>
+      <p>请直视摄像头</p>
+    </div>
+  `;
 
   try {
-    // 模拟人脸识别，延时0.7秒后进入主界面
-    await new Promise(resolve => setTimeout(resolve, 700));
+    // 模拟人脸识别，延时0.8秒后进入主界面
+    await new Promise(resolve => setTimeout(resolve, 800));
     
     // 由于是假人脸识别，我们直接进入主界面
     // 在实际应用中，这里应该验证用户是否存在
@@ -86,13 +73,27 @@ document.getElementById('face-id-btn').addEventListener('click', async () => {
       window.location.href = 'mainPage.html';
     } else {
       showError('用户不存在');
+      // 重新启用按钮并恢复原始界面
+      faceIdBtn.disabled = false;
+      faceIdBtn.textContent = '人脸识别登录';
+      document.getElementById('face-id-section').innerHTML = `
+        <div id="face-id-loading" class="face-id-loading">
+          <div class="spinner"></div>
+          <p>正在扫描面部特征...</p>
+        </div>
+      `;
     }
   } catch (err) {
     showError('登录失败: ' + err.message);
-  } finally {
-    // 无论成功还是失败，都要重新启用按钮
+    // 重新启用按钮并恢复原始界面
     faceIdBtn.disabled = false;
     faceIdBtn.textContent = '人脸识别登录';
+    document.getElementById('face-id-section').innerHTML = `
+      <div id="face-id-loading" class="face-id-loading">
+        <div class="spinner"></div>
+        <p>正在扫描面部特征...</p>
+      </div>
+    `;
   }
 });
 
@@ -100,4 +101,3 @@ document.getElementById('face-id-btn').addEventListener('click', async () => {
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('face-id-loading').style.display = 'none';
 });
-

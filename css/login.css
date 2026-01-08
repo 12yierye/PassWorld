@@ -1,64 +1,17 @@
-.auth-section {
+/* 登录页面样式 */
+.container {
   max-width: 500px;
   margin: 10vh auto;
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   background-color: white;
-  text-align: center;
 }
 
 .auth-section h2 {
   text-align: center;
   margin-bottom: 1.5rem;
   color: #333;
-  font-size: 1.5em;
-}
-
-.error-message {
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  border-radius: 4px;
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-  display: none;
-}
-
-.success-message {
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  border-radius: 4px;
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-  display: none;
-}
-
-.btn-login { 
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-bottom: 10px;
-}
-
-.btn-login:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-
-.btn-login:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.login-form {
-  /* Removed as we're using .auth-section for container styling */
 }
 
 .form-group {
@@ -81,11 +34,30 @@
   box-sizing: border-box;
 }
 
+.btn-login {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-login:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.btn-login:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
 .link-text {
   text-align: center;
   margin-top: 1rem;
-  font-size: 14px;
-  color: #555;
 }
 
 .link-text a {
@@ -97,19 +69,31 @@
   text-decoration: underline;
 }
 
+.error-message,
+.success-message {
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  display: none;
+}
+
+.error-message {
+  background-color: #ffebee;  /* 更浅的红色背景 */
+  color: #c62828;            /* 深一点的红色字体 */
+  border: 1px solid #ffcdd2; /* 淡红色边框 */
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
 .hidden {
   display: none;
 }
 
-#face-id-section {
-  margin: 1.5rem 0;
-  padding: 1rem;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  background-color: #f9f9f9;
-}
-
-.face-id-loading {
+.face-id-processing {
   text-align: center;
   padding: 1rem;
   margin: 1rem 0;
@@ -128,4 +112,20 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+#camera-section {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+#video-container {
+  display: none;
+}
+
+#video-container.show {
+  display: block;
 }

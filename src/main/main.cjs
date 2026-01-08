@@ -30,7 +30,11 @@ const createWindow = () => {
 
   // 设置页面加载事件监听器
   win.webContents.on('did-finish-load', () => {
-    console.log('Page finished loading');
+    const currentURL = win.webContents.getURL();
+    const urlObj = new URL(currentURL);
+    const pathname = urlObj.pathname;
+    const filename = pathname.split('/').pop() || 'index.html'; // 如果没有文件名，默认为index.html
+    console.log(`Page finished loading: ${filename}`);
     // if (!app.isPackaged) {
     //   win.webContents.openDevTools(); // 开发环境下自动打开开发者工具
     // }
