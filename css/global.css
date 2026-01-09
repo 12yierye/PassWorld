@@ -37,11 +37,12 @@ body {
 }
 
 .title-bar-btn {
-  width: 46px;
+  width: 40px;
   height: 24px;
   font-size: 14px;
   border: 1px solid #ccc;
   background-color: #f0f0f0;
+  color: #333;
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -57,14 +58,39 @@ body {
   background-color: #e0e0e0;
 }
 
+.title-bar-btn:active {
+  background-color: #d0d0d0;
+}
+
 .close-btn {
   background-color: #ff5f57;
   color: white;
   border-color: #d9453c;
+  transition: all 0.2s ease;
 }
 
 .close-btn:hover {
   background-color: #ff7872;
+}
+
+.close-btn:active {
+  background-color: #e04844;
+}
+
+.logout-btn:active {
+  background-color: #d0d0d0;
+}
+
+.logout-btn {
+  background-color: #eb6161;
+  color: white;
+  border-color: #c24d4d;
+  width: 80px;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: #ff5f57;
 }
 
 /* 通用容器样式 */
