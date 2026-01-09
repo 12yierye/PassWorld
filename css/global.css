@@ -16,11 +16,16 @@ body {
   justify-content: space-between;
   align-items: center;
   height: 32px;
-  background-color: #f0f0f0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* 与body背景保持一致 */
   border-bottom: 1px solid #ccc;
-  padding: 0 10px;
+  padding: 0;
   box-sizing: border-box;
   -webkit-app-region: drag;
+  position: fixed; /* 固定定位在窗口顶部 */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999; /* 确保在最顶层 */
 }
 
 .title-bar-text {
@@ -29,11 +34,13 @@ body {
   color: #333;
   -webkit-app-region: drag;
   cursor: default;
+  padding: 0 10px; /* 文字左右留一点空间 */
 }
 
 .title-bar-buttons {
   display: flex;
   gap: 4px;
+  padding: 0 10px; /* 与右边按钮保持一致 */
 }
 
 .title-bar-btn {
@@ -41,7 +48,7 @@ body {
   height: 24px;
   font-size: 14px;
   border: 1px solid #ccc;
-  background-color: #f0f0f0;
+  background-color: rgba(240, 240, 240, 0.6); /* 使用半透明背景与渐变融合 */
   color: #333;
   cursor: pointer;
   display: flex;
@@ -55,11 +62,11 @@ body {
 }
 
 .title-bar-btn:hover {
-  background-color: #e0e0e0;
+  background-color: rgba(224, 224, 224, 0.8);
 }
 
 .title-bar-btn:active {
-  background-color: #d0d0d0;
+  background-color: rgba(208, 208, 208, 0.9);
 }
 
 .close-btn {

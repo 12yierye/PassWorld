@@ -1,4 +1,7 @@
-/* 登录页面样式 */
+* {
+  user-select: none;
+}
+
 .container {
   max-width: 500px;
   margin: 10vh auto;
