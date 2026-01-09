@@ -41,6 +41,7 @@ body {
   display: flex;
   gap: 4px;
   padding: 0 10px; /* 与右边按钮保持一致 */
+  -webkit-app-region: no-drag; /* 确保按钮区域不可拖拽 */
 }
 
 .title-bar-btn {
@@ -112,6 +113,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 162px);
+  margin-top: 42px; /* 为固定标题栏留出空间 */
 }
 
 /* 表单组样式 */
