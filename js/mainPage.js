@@ -249,74 +249,70 @@ async function loadAccounts() {
     const tbody = document.getElementById('accounts-tbody');
     
     if (tbody) {  // 检查元素是否存在
-      // 清空表格内容
-      tbody.innerHTML = '';
+      // 清空表格内容 - 使用更彻底的方式清除所有子元素
+      while (tbody.firstChild) {
+        tbody.removeChild(tbody.firstChild);
+      }
 
       // 检查是否有账户数据，如果没有则显示空状态
       if (accounts.length === 0) {
         const emptyRow = tbody.insertRow();
-        emptyRow.innerHTML = `
-          <td colspan="4" class="empty-state-cell">
-            <div class="empty-state-content">
-              空空如也，请添加账户
-            </div>
-          </td>
-        `;
+        const emptyCell = emptyRow.insertCell(0);
+        emptyCell.colSpan = 4;
+        emptyCell.className = 'empty-state-cell';
+        
+        const emptyContent = document.createElement('div');
+        emptyContent.className = 'empty-state-content';
+        emptyContent.textContent = '空空如也，请添加账户';
+        
+        emptyCell.appendChild(emptyContent);
       } else {
         accounts.forEach((acc, index) => {
           const row = tbody.insertRow();
-          row.innerHTML = `
-            <td title="${acc.platform}">${acc.platform}</td>
-            <td title="${acc.username}">${acc.username}</td>
-            <td class="password-cell" data-password="${acc.password}" title="${acc.password}"><span class="password-text">******</span></td>
-            <td>
-              <button class="action-btn edit" data-index="${index}">编辑</button>
-              <button class="action-btn delete" data-index="${index}">删除</button>
-            </td>
-          `;
+          
+          // 创建并填充平台单元格
+          const platformCell = row.insertCell();
+          platformCell.title = acc.platform;
+          platformCell.textContent = acc.platform;
+          
+          // 创建并填充用户名单元格
+          const usernameCell = row.insertCell();
+          usernameCell.title = acc.username;
+          usernameCell.textContent = acc.username;
+          
+          // 创建并填充密码单元格
+          const passwordCell = row.insertCell();
+          passwordCell.className = 'password-cell';
+          passwordCell.setAttribute('data-password', acc.password);
+          passwordCell.title = acc.password;
+          
+          const passwordSpan = document.createElement('span');
+          passwordSpan.className = 'password-text';
+          passwordSpan.textContent = '******';
+          
+          passwordCell.appendChild(passwordSpan);
+          
+          // 创建并填充操作单元格
+          const actionCell = row.insertCell();
+          
+          const editButton = document.createElement('button');
+          editButton.className = 'action-btn edit';
+          editButton.dataset.index = index;
+          editButton.textContent = '编辑';
+          
+          const deleteButton = document.createElement('button');
+          deleteButton.className = 'action-btn delete';
+          deleteButton.dataset.index = index;
+          deleteButton.textContent = '删除';
+          
+          actionCell.appendChild(editButton);
+          actionCell.appendChild(deleteButton);
         });
       }
 
       // 绑定操作按钮事件（委托）
-      tbody.addEventListener('click', (e) => {
-        if (e.target.classList.contains('edit')) {
-          const index = e.target.dataset.index;
-          const acc = accounts[index];
-          openModal('编辑账户', { ...acc, index });
-        } else if (e.target.classList.contains('delete')) {
-          const index = e.target.dataset.index;
-          if (confirm('确定删除？')) {
-            accounts.splice(index, 1);
-            // 保存账户并等待完成后再重新加载
-            saveAccountsToDb(accounts)
-              .then(() => {
-                // 保存成功后重新加载账户列表
-                return loadAccounts();
-              })
-              .catch(err => {
-                // 删除操作不在模态框中，所以可以显示在主界面上
-                showError('删除失败: ' + err.message);
-              });
-          }
-        } else if (e.target.classList.contains('password-cell') || e.target.classList.contains('password-text')) {
-          let cell;
-          if (e.target.classList.contains('password-text')) {
-            cell = e.target.closest('.password-cell');
-          } else {
-            cell = e.target;
-          }
-          if (cell) {
-            const span = cell.querySelector('.password-text');
-            if (span) {
-              if (span.textContent === '******') {
-                span.textContent = cell.dataset.password;
-              } else {
-                span.textContent = '******';
-              }
-            }
-          }
-        }
-      });
+      tbody.removeEventListener('click', handleTableClick); // 防止重复绑定
+      tbody.addEventListener('click', handleTableClick);
     }
   } catch (err) {
     console.error('加载账户失败:', err);
@@ -324,16 +320,62 @@ async function loadAccounts() {
     // 仍然显示空状态
     const tbody = document.getElementById('accounts-tbody');
     if (tbody) {  // 检查元素是否存在
-      // 清空表格内容
-      tbody.innerHTML = '';
+      // 清空表格内容 - 使用更彻底的方式清除所有子元素
+      while (tbody.firstChild) {
+        tbody.removeChild(tbody.firstChild);
+      }
+      
       const emptyRow = tbody.insertRow();
-      emptyRow.innerHTML = `
-        <td colspan="4" class="empty-state-cell">
-          <div class="empty-state-content">
-            空空如也，请添加账户
-          </div>
-        </td>
-      `;
+      const emptyCell = emptyRow.insertCell(0);
+      emptyCell.colSpan = 4;
+      emptyCell.className = 'empty-state-cell';
+      
+      const emptyContent = document.createElement('div');
+      emptyContent.className = 'empty-state-content';
+      emptyContent.textContent = '空空如也，请添加账户';
+      
+      emptyCell.appendChild(emptyContent);
+    }
+  }
+}
+
+// 将表格点击处理函数独立出来，避免重复绑定
+function handleTableClick(e) {
+  if (e.target.classList.contains('edit')) {
+    const index = e.target.dataset.index;
+    const acc = accounts[index];
+    openModal('编辑账户', { ...acc, index });
+  } else if (e.target.classList.contains('delete')) {
+    const index = e.target.dataset.index;
+    if (confirm('确定删除？')) {
+      accounts.splice(index, 1);
+      // 保存账户并等待完成后再重新加载
+      saveAccountsToDb(accounts)
+        .then(() => {
+          // 保存成功后重新加载账户列表
+          return loadAccounts();
+        })
+        .catch(err => {
+          // 删除操作不在模态框中，所以可以显示在主界面上
+          showError('删除失败: ' + err.message);
+        });
+    }
+  } else if (e.target.classList.contains('password-cell') || e.target.classList.contains('password-text')) {
+    let cell;
+    if (e.target.classList.contains('password-text')) {
+      cell = e.target.closest('.password-cell');
+    } else {
+      cell = e.target;
+    }
+    if (cell) {
+      const span = cell.querySelector('.password-text');
+      if (span) {
+        if (span.textContent === '******') {
+          span.textContent = cell.dataset.password;
+        } else {
+          span.textContent = '******';
+        }
+      }
     }
   }
 }
