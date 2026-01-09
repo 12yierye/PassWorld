@@ -67,9 +67,10 @@ temp/
 # Unnecessary files
 Release note.*
 Release note
-
 TODO.*
 TODO
-
 Problems.*
 Problems
+
+# Trae files
+.trae/
