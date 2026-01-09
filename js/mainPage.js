@@ -240,12 +240,19 @@ async function saveAccountsToDb(accs) {
 
 async function loadAccounts() {
   const currentUser = PassWorld.getCurrentUser();
-  const masterPassword = PassWorld.masterPassword;
+  const masterPassword = PassWorld.getMasterPassword(); // 使用getMasterPassword()确保获取最新的主密码
+  if (!currentUser || !masterPassword) {
+    console.error('加载账户失败：用户未登录或主密码不存在');
+    return [];
+  }
   try {
     console.log('开始加载账户数据...');
+    console.log('当前用户:', currentUser);
+    console.log('主密码是否存在:', !!masterPassword);
     const result = await ipcRenderer.invoke('db-load-accounts', currentUser, masterPassword);
     console.log('账户数据加载完成:', result);
     accounts = result.accounts || [];
+    console.log('加载后的accounts数组:', accounts);
     const tbody = document.getElementById('accounts-tbody');
     
     if (tbody) {  // 检查元素是否存在
@@ -444,6 +451,15 @@ async function saveAccount() {
   // 如果正在保存，直接返回
   if (isSaving) return;
   
+  // 检查用户是否已登录且主密码存在
+  const currentUser = PassWorld.getCurrentUser();
+  const masterPassword = PassWorld.getMasterPassword();
+  if (!currentUser || !masterPassword) {
+    showModalError('用户未登录或主密码不存在');
+    window.location.href = 'login.html';
+    return;
+  }
+  
   const platform = document.getElementById('platform-input').value.trim();
   const username = document.getElementById('account-username-input').value.trim();
   const password = document.getElementById('account-password-input').value;
@@ -462,15 +478,24 @@ async function saveAccount() {
 
   if (editingIndex !== null) {
     accounts[editingIndex] = { platform, username, password };
+    console.log('编辑账户:', accounts[editingIndex]);
   } else {
     accounts.push({ platform, username, password });
+    console.log('添加新账户:', accounts[accounts.length - 1]);
   }
 
   try {
+    console.log('开始保存账户数据到数据库...');
+    console.log('保存前的accounts数组:', accounts);
     // 等待数据保存完成后再关闭模态框
-    await saveAccountsToDb(accounts);
+    const saveResult = await saveAccountsToDb(accounts);
+    console.log('保存结果:', saveResult);
+    
+    console.log('开始重新加载账户列表...');
     // 重新加载账户列表
     await loadAccounts();
+    console.log('重新加载后的accounts数组:', accounts);
+    
     closeModal(); // 成功后才关闭模态框
   } catch (error) {
     // 显示错误但不关闭模态框
