@@ -118,8 +118,10 @@ document.getElementById('face-id-btn').addEventListener('click', async () => {
     // 在实际应用中，这里应该验证用户是否存在
     const result = await ipcRenderer.invoke('db-check-user', username);
     if (result.exists) {
-      // 设置当前用户（使用一个临时密码，因为不再验证密码）
-      PassWorld.loginUser(username, 'temp_password');
+      // 尝试从本地存储获取主密码（如果有）
+      const savedMasterPassword = localStorage.getItem(`masterPassword_${username}`) || 'default_password';
+      // 设置当前用户
+      PassWorld.loginUser(username, savedMasterPassword);
       window.location.href = 'mainPage.html';
     } else {
       showError('用户不存在');

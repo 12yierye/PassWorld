@@ -245,28 +245,36 @@ async function getAccounts() {
 async function saveAccountsToDb(accs) {
   const currentUser = PassWorld.getCurrentUser();
   const masterPassword = PassWorld.getMasterPassword(); // 使用getMasterPassword()确保获取最新的主密码
+  
+  console.log('=== 开始保存账户数据 ===');
+  console.log('当前用户:', currentUser);
+  console.log('要保存的账户数量:', accs.length);
+  console.log('要保存的账户数据:', JSON.stringify(accs, null, 2));
+  
   if (!masterPassword) {
+    console.error('保存失败：主密码不存在');
     throw new Error('主密码不存在');
   }
   try {
     const result = await ipcRenderer.invoke('db-save-accounts', currentUser, masterPassword, accs);
+    console.log('数据库保存结果:', result);
+    
     if (!result.success) {
       // 检查是否在添加/编辑账户的模态框中
       if (editingIndex !== null || document.getElementById('modal-title').textContent === '添加账户') {
         showModalError('保存失败: ' + result.error);
-        // 抛出错误，让调用方知道保存失败了
-        throw new Error(result.error);
       } else {
         showError('保存失败: ' + result.error);
-        // 抛出错误，让调用方知道保存失败了
-        throw new Error(result.error);
       }
+      // 抛出错误，让调用方知道保存失败了
+      throw new Error(result.error);
     } else {
       showSuccess('保存成功');
       // 返回成功结果（不再在这里关闭模态框）
       return result;
     }
   } catch (err) {
+    console.error('保存账户时发生异常:', err);
     // 检查是否在添加/编辑账户的模态框中
     if (editingIndex !== null || document.getElementById('modal-title').textContent === '添加账户') {
       showModalError('保存失败: ' + err.message);
@@ -281,6 +289,11 @@ async function saveAccountsToDb(accs) {
 async function loadAccounts() {
   const currentUser = PassWorld.getCurrentUser();
   const masterPassword = PassWorld.getMasterPassword();
+  
+  console.log('=== 开始加载账户数据 ===');
+  console.log('当前用户:', currentUser);
+  console.log('主密码存在:', !!masterPassword);
+  
   if (!currentUser || !masterPassword) {
     console.error('加载账户失败：用户未登录或主密码不存在');
     return [];
@@ -288,7 +301,10 @@ async function loadAccounts() {
   
   // 显示加载指示器
   const tbody = document.getElementById('accounts-tbody');
-  if (!tbody) return [];
+  if (!tbody) {
+    console.error('加载账户失败：未找到表格tbody元素');
+    return [];
+  }
   
   // 清空表格内容
   tbody.innerHTML = '';
@@ -301,28 +317,48 @@ async function loadAccounts() {
   loadingCell.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; padding: 40px 20px; color: #999;"><div class="spinner"></div> <span style="margin-left: 10px;">正在加载...</span></div>';
   
   try {
-    console.log('开始加载账户数据...');
+    console.log('正在从数据库加载账户数据...');
     const result = await ipcRenderer.invoke('db-load-accounts', currentUser, masterPassword);
-    console.log('账户数据加载完成:', result);
+    console.log('数据库加载结果:', result);
+    
     accounts = result.accounts || [];
-    console.log('加载后的accounts数组:', accounts);
+    console.log('加载后的accounts数组长度:', accounts.length);
+    console.log('加载后的accounts数组:', JSON.stringify(accounts, null, 2));
     
     // 清空表格内容
     tbody.innerHTML = '';
     
     // 检查是否有账户数据
     if (accounts.length === 0) {
-      const emptyRow = tbody.insertRow();
-      const emptyCell = emptyRow.insertCell(0);
-      emptyCell.colSpan = 4;
-      emptyCell.className = 'empty-state-cell';
+      // 清空表格内容
+      tbody.innerHTML = '';
       
-      const emptyContent = document.createElement('div');
-      emptyContent.className = 'empty-state-content';
-      emptyContent.textContent = '空空如也，请添加账户';
-      
-      emptyCell.appendChild(emptyContent);
+      // 在表格容器中显示空状态
+      const tableContainer = document.querySelector('.table-container');
+      if (tableContainer) {
+        // 移除已存在的空状态
+        const existingEmptyState = tableContainer.querySelector('.table-empty-state');
+        if (existingEmptyState) {
+          existingEmptyState.remove();
+        }
+        
+        // 创建新的空状态元素
+        const emptyState = document.createElement('div');
+        emptyState.className = 'table-empty-state';
+        emptyState.textContent = '空空如也，请添加账户';
+        
+        // 添加到表格容器
+        tableContainer.appendChild(emptyState);
+      }
     } else {
+      // 移除空状态（如果存在）
+      const tableContainer = document.querySelector('.table-container');
+      if (tableContainer) {
+        const existingEmptyState = tableContainer.querySelector('.table-empty-state');
+        if (existingEmptyState) {
+          existingEmptyState.remove();
+        }
+      }
       // 使用文档片段提高性能
       const fragment = document.createDocumentFragment();
       
@@ -592,17 +628,35 @@ function updateAccountTable() {
   
   // 检查是否有账户数据
   if (accounts.length === 0) {
-    const emptyRow = tbody.insertRow();
-    const emptyCell = emptyRow.insertCell(0);
-    emptyCell.colSpan = 4;
-    emptyCell.className = 'empty-state-cell';
+    // 清空表格内容
+    tbody.innerHTML = '';
     
-    const emptyContent = document.createElement('div');
-    emptyContent.className = 'empty-state-content';
-    emptyContent.textContent = '空空如也，请添加账户';
-    
-    emptyCell.appendChild(emptyContent);
+    // 在表格容器中显示空状态
+    const tableContainer = document.querySelector('.table-container');
+    if (tableContainer) {
+      // 移除已存在的空状态
+      const existingEmptyState = tableContainer.querySelector('.table-empty-state');
+      if (existingEmptyState) {
+        existingEmptyState.remove();
+      }
+      
+      // 创建新的空状态元素
+      const emptyState = document.createElement('div');
+      emptyState.className = 'table-empty-state';
+      emptyState.textContent = '空空如也，请添加账户';
+      
+      // 添加到表格容器
+      tableContainer.appendChild(emptyState);
+    }
   } else {
+    // 移除空状态（如果存在）
+    const tableContainer = document.querySelector('.table-container');
+    if (tableContainer) {
+      const existingEmptyState = tableContainer.querySelector('.table-empty-state');
+      if (existingEmptyState) {
+        existingEmptyState.remove();
+      }
+    }
     // 使用文档片段批量添加表格行
     const fragment = document.createDocumentFragment();
     

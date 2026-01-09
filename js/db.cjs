@@ -31,7 +31,8 @@ function encrypt(text, password) {
   const salt = crypto.randomBytes(16);
   const key = deriveKey(password, salt);
   const iv = crypto.randomBytes(ivLength);
-  const cipher = crypto.createCipher(algorithm, key);
+  // 使用正确的createCipheriv函数，需要传入key和iv
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
   let encrypted = cipher.update(text, 'utf8', 'hex');
   encrypted += cipher.final('hex');
   return salt.toString('hex') + ':' + iv.toString('hex') + ':' + encrypted;
@@ -41,21 +42,21 @@ function encrypt(text, password) {
 function decrypt(encrypted, password) {
   if (!encrypted) {
     // 不输出错误，因为空数据可能是正常的初始状态
-    // console.error('Attempting to decrypt empty or undefined data');
     return '';
   }
   
   const parts = encrypted.split(':');
   if (parts.length !== 3) {
     console.error('Invalid encrypted data format, parts:', parts);
-    throw new Error('Invalid encrypted data format');
+    return '';
   }
   
   const salt = Buffer.from(parts[0], 'hex');
   const iv = Buffer.from(parts[1], 'hex');
   const encryptedText = parts[2];
   const key = deriveKey(password, salt);
-  const decipher = crypto.createDecipher(algorithm, key);
+  // 使用正确的createDecipheriv函数，需要传入key和iv
+  const decipher = crypto.createDecipheriv(algorithm, key, iv);
   let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
   return decrypted;
@@ -207,6 +208,16 @@ async function createUser(username, password) {
       throw new Error('Password cannot be empty');
     }
     
+    // 确保用户名为空
+    if (!username || username.trim() === '') {
+      throw new Error('Username cannot be empty');
+    }
+    
+    // 创建用户前明确检查用户名是否存在
+    if (await checkUserExists(username)) {
+      throw new Error('Username already exists');
+    }
+    
     const hashed = hashPassword(password);
     // 在生产环境中禁用调试日志
     if (process.env.NODE_ENV !== 'production') {
@@ -228,10 +239,6 @@ async function createUser(username, password) {
     return success;
   } catch (error) {
     console.error('Creating user failed:', error);
-    // 检查是否是唯一性约束错误（用户名已存在）
-    if (error.message && error.message.includes('UNIQUE constraint failed')) {
-      throw new Error('UNIQUE constraint failed');
-    }
     throw error;
   }
 }
