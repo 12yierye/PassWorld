@@ -207,17 +207,18 @@ tr {
 /* 优化空状态显示 */
 .empty-state-cell {
   text-align: center;
-  height: 300px;
+  padding: 40px 20px;
+  min-height: 150px;
 }
 
 .empty-state-content {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  width: 100%;
   color: #ccc;
   font-size: 20px;
+  height: 100%;
+  width: 100%;
 }
 
 /* 优化模态框动画 */
@@ -226,15 +227,16 @@ tr {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background-color: rgba(0,0,0,0.5);
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s ease;
-  z-index: 1000;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 10000;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 }
 
 .modal.show {

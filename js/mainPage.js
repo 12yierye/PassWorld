@@ -207,7 +207,10 @@ async function getAccounts() {
 
 async function saveAccountsToDb(accs) {
   const currentUser = PassWorld.getCurrentUser();
-  const masterPassword = PassWorld.masterPassword;
+  const masterPassword = PassWorld.getMasterPassword(); // 使用getMasterPassword()确保获取最新的主密码
+  if (!masterPassword) {
+    throw new Error('主密码不存在');
+  }
   try {
     const result = await ipcRenderer.invoke('db-save-accounts', currentUser, masterPassword, accs);
     if (!result.success) {
@@ -240,98 +243,38 @@ async function saveAccountsToDb(accs) {
 
 async function loadAccounts() {
   const currentUser = PassWorld.getCurrentUser();
-  const masterPassword = PassWorld.getMasterPassword(); // 使用getMasterPassword()确保获取最新的主密码
+  const masterPassword = PassWorld.getMasterPassword();
   if (!currentUser || !masterPassword) {
     console.error('加载账户失败：用户未登录或主密码不存在');
     return [];
   }
+  
+  // 显示加载指示器
+  const tbody = document.getElementById('accounts-tbody');
+  if (!tbody) return [];
+  
+  // 清空表格内容
+  tbody.innerHTML = '';
+  
+  // 添加加载状态行
+  const loadingRow = tbody.insertRow();
+  const loadingCell = loadingRow.insertCell(0);
+  loadingCell.colSpan = 4;
+  loadingCell.className = 'loading-state-cell';
+  loadingCell.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; padding: 40px 20px; color: #999;"><div class="spinner"></div> <span style="margin-left: 10px;">正在加载...</span></div>';
+  
   try {
     console.log('开始加载账户数据...');
-    console.log('当前用户:', currentUser);
-    console.log('主密码是否存在:', !!masterPassword);
     const result = await ipcRenderer.invoke('db-load-accounts', currentUser, masterPassword);
     console.log('账户数据加载完成:', result);
     accounts = result.accounts || [];
     console.log('加载后的accounts数组:', accounts);
-    const tbody = document.getElementById('accounts-tbody');
     
-    if (tbody) {  // 检查元素是否存在
-      // 清空表格内容 - 使用更彻底的方式清除所有子元素
-      while (tbody.firstChild) {
-        tbody.removeChild(tbody.firstChild);
-      }
-
-      // 检查是否有账户数据，如果没有则显示空状态
-      if (accounts.length === 0) {
-        const emptyRow = tbody.insertRow();
-        const emptyCell = emptyRow.insertCell(0);
-        emptyCell.colSpan = 4;
-        emptyCell.className = 'empty-state-cell';
-        
-        const emptyContent = document.createElement('div');
-        emptyContent.className = 'empty-state-content';
-        emptyContent.textContent = '空空如也，请添加账户';
-        
-        emptyCell.appendChild(emptyContent);
-      } else {
-        accounts.forEach((acc, index) => {
-          const row = tbody.insertRow();
-          
-          // 创建并填充平台单元格
-          const platformCell = row.insertCell();
-          platformCell.title = acc.platform;
-          platformCell.textContent = acc.platform;
-          
-          // 创建并填充用户名单元格
-          const usernameCell = row.insertCell();
-          usernameCell.title = acc.username;
-          usernameCell.textContent = acc.username;
-          
-          // 创建并填充密码单元格
-          const passwordCell = row.insertCell();
-          passwordCell.className = 'password-cell';
-          passwordCell.setAttribute('data-password', acc.password);
-          passwordCell.title = acc.password;
-          
-          const passwordSpan = document.createElement('span');
-          passwordSpan.className = 'password-text';
-          passwordSpan.textContent = '******';
-          
-          passwordCell.appendChild(passwordSpan);
-          
-          // 创建并填充操作单元格
-          const actionCell = row.insertCell();
-          
-          const editButton = document.createElement('button');
-          editButton.className = 'action-btn edit';
-          editButton.dataset.index = index;
-          editButton.textContent = '编辑';
-          
-          const deleteButton = document.createElement('button');
-          deleteButton.className = 'action-btn delete';
-          deleteButton.dataset.index = index;
-          deleteButton.textContent = '删除';
-          
-          actionCell.appendChild(editButton);
-          actionCell.appendChild(deleteButton);
-        });
-      }
-
-      // 绑定操作按钮事件（委托）
-      tbody.removeEventListener('click', handleTableClick); // 防止重复绑定
-      tbody.addEventListener('click', handleTableClick);
-    }
-  } catch (err) {
-    console.error('加载账户失败:', err);
-    // 如果是新用户没有账户数据，这可能是正常的，所以不显示错误
-    // 仍然显示空状态
-    const tbody = document.getElementById('accounts-tbody');
-    if (tbody) {  // 检查元素是否存在
-      // 清空表格内容 - 使用更彻底的方式清除所有子元素
-      while (tbody.firstChild) {
-        tbody.removeChild(tbody.firstChild);
-      }
-      
+    // 清空表格内容
+    tbody.innerHTML = '';
+    
+    // 检查是否有账户数据
+    if (accounts.length === 0) {
       const emptyRow = tbody.insertRow();
       const emptyCell = emptyRow.insertCell(0);
       emptyCell.colSpan = 4;
@@ -342,8 +285,80 @@ async function loadAccounts() {
       emptyContent.textContent = '空空如也，请添加账户';
       
       emptyCell.appendChild(emptyContent);
+    } else {
+      // 使用文档片段提高性能
+      const fragment = document.createDocumentFragment();
+      
+      accounts.forEach((acc, index) => {
+        const row = document.createElement('tr');
+        
+        // 平台单元格
+        const platformCell = document.createElement('td');
+        platformCell.title = acc.platform;
+        platformCell.textContent = acc.platform;
+        row.appendChild(platformCell);
+        
+        // 用户名单元格
+        const usernameCell = document.createElement('td');
+        usernameCell.title = acc.username;
+        usernameCell.textContent = acc.username;
+        row.appendChild(usernameCell);
+        
+        // 密码单元格
+        const passwordCell = document.createElement('td');
+        passwordCell.className = 'password-cell';
+        passwordCell.setAttribute('data-password', acc.password);
+        passwordCell.title = acc.password;
+        
+        const passwordSpan = document.createElement('span');
+        passwordSpan.className = 'password-text';
+        passwordSpan.textContent = '******';
+        passwordCell.appendChild(passwordSpan);
+        row.appendChild(passwordCell);
+        
+        // 操作单元格
+        const actionCell = document.createElement('td');
+        
+        const editButton = document.createElement('button');
+        editButton.className = 'action-btn edit';
+        editButton.dataset.index = index;
+        editButton.textContent = '编辑';
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'action-btn delete';
+        deleteButton.dataset.index = index;
+        deleteButton.textContent = '删除';
+        
+        actionCell.appendChild(editButton);
+        actionCell.appendChild(deleteButton);
+        row.appendChild(actionCell);
+        
+        fragment.appendChild(row);
+      });
+      
+      // 一次性添加所有行到DOM
+      tbody.appendChild(fragment);
     }
+
+    // 绑定操作按钮事件（委托）
+    tbody.removeEventListener('click', handleTableClick);
+    tbody.addEventListener('click', handleTableClick);
+    
+  } catch (err) {
+    console.error('加载账户失败:', err);
+    
+    // 清空表格内容
+    tbody.innerHTML = '';
+    
+    // 显示错误状态
+    const errorRow = tbody.insertRow();
+    const errorCell = errorRow.insertCell(0);
+    errorCell.colSpan = 4;
+    errorCell.className = 'empty-state-cell';
+    errorCell.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; padding: 40px 20px; color: #e74c3c;">加载失败，请稍后重试</div>';
   }
+  
+  return accounts;
 }
 
 // 将表格点击处理函数独立出来，避免重复绑定
@@ -476,36 +491,137 @@ async function saveAccount() {
   saveBtn.innerHTML = '<span class="loading-spinner"></span> 保存中...';
   saveBtn.disabled = true;
 
-  if (editingIndex !== null) {
-    accounts[editingIndex] = { platform, username, password };
-    console.log('编辑账户:', accounts[editingIndex]);
-  } else {
-    accounts.push({ platform, username, password });
-    console.log('添加新账户:', accounts[accounts.length - 1]);
-  }
+  // 保存原始状态，以便在保存失败时恢复
+  const originalAccounts = JSON.parse(JSON.stringify(accounts));
+  const originalEditingIndex = editingIndex;
 
   try {
-    console.log('开始保存账户数据到数据库...');
-    console.log('保存前的accounts数组:', accounts);
-    // 等待数据保存完成后再关闭模态框
+    // 创建新账户对象
+    const newAccount = { platform, username, password };
+    
+    // 立即更新本地数组和UI（乐观UI）
+    if (editingIndex !== null) {
+      accounts[editingIndex] = newAccount;
+      console.log('编辑账户:', accounts[editingIndex]);
+    } else {
+      accounts.push(newAccount);
+      console.log('添加新账户:', accounts[accounts.length - 1]);
+    }
+    
+    // 立即更新UI（不重新加载整个表格，只更新或添加行）
+    updateAccountTable();
+    
+    // 关闭模态框
+    closeModal();
+    
+    // 在后台保存到数据库（不阻塞UI）
+    console.log('开始在后台保存账户数据到数据库...');
     const saveResult = await saveAccountsToDb(accounts);
     console.log('保存结果:', saveResult);
     
-    console.log('开始重新加载账户列表...');
-    // 重新加载账户列表
-    await loadAccounts();
-    console.log('重新加载后的accounts数组:', accounts);
+    // 保存成功后显示成功消息
+    showSuccess('保存成功');
     
-    closeModal(); // 成功后才关闭模态框
   } catch (error) {
-    // 显示错误但不关闭模态框
-    console.error('保存账户时发生错误:', error); // 在控制台输出详细错误信息
-    showModalError('保存失败: ' + error.message);
+    // 保存失败，恢复原始状态
+    accounts = originalAccounts;
+    editingIndex = originalEditingIndex;
+    await loadAccounts(); // 重新加载表格
+    
+    // 显示错误消息
+    console.error('保存账户时发生错误:', error);
+    showError('保存失败: ' + error.message);
   } finally {
     // 恢复按钮状态
-    saveBtn.innerHTML = originalText;
-    saveBtn.disabled = false;
+    const modal = document.getElementById('account-modal');
+    if (modal) {
+      const saveBtnInModal = modal.querySelector('#save-btn');
+      if (saveBtnInModal) {
+        saveBtnInModal.innerHTML = originalText;
+        saveBtnInModal.disabled = false;
+      }
+    }
     isSaving = false;
   }
+}
+
+// 更新账户表格（只更新或添加行，不重新加载整个表格）
+function updateAccountTable() {
+  const tbody = document.getElementById('accounts-tbody');
+  if (!tbody) return;
+  
+  // 清空表格内容
+  tbody.innerHTML = '';
+  
+  // 检查是否有账户数据
+  if (accounts.length === 0) {
+    const emptyRow = tbody.insertRow();
+    const emptyCell = emptyRow.insertCell(0);
+    emptyCell.colSpan = 4;
+    emptyCell.className = 'empty-state-cell';
+    
+    const emptyContent = document.createElement('div');
+    emptyContent.className = 'empty-state-content';
+    emptyContent.textContent = '空空如也，请添加账户';
+    
+    emptyCell.appendChild(emptyContent);
+  } else {
+    // 使用文档片段批量添加表格行
+    const fragment = document.createDocumentFragment();
+    
+    accounts.forEach((acc, index) => {
+      const row = document.createElement('tr');
+      
+      // 平台单元格
+      const platformCell = document.createElement('td');
+      platformCell.title = acc.platform;
+      platformCell.textContent = acc.platform;
+      row.appendChild(platformCell);
+      
+      // 用户名单元格
+      const usernameCell = document.createElement('td');
+      usernameCell.title = acc.username;
+      usernameCell.textContent = acc.username;
+      row.appendChild(usernameCell);
+      
+      // 密码单元格
+      const passwordCell = document.createElement('td');
+      passwordCell.className = 'password-cell';
+      passwordCell.setAttribute('data-password', acc.password);
+      passwordCell.title = acc.password;
+      
+      const passwordSpan = document.createElement('span');
+      passwordSpan.className = 'password-text';
+      passwordSpan.textContent = '******';
+      passwordCell.appendChild(passwordSpan);
+      row.appendChild(passwordCell);
+      
+      // 操作单元格
+      const actionCell = document.createElement('td');
+      
+      const editButton = document.createElement('button');
+      editButton.className = 'action-btn edit';
+      editButton.dataset.index = index;
+      editButton.textContent = '编辑';
+      
+      const deleteButton = document.createElement('button');
+      deleteButton.className = 'action-btn delete';
+      deleteButton.dataset.index = index;
+      deleteButton.textContent = '删除';
+      
+      actionCell.appendChild(editButton);
+      actionCell.appendChild(deleteButton);
+      row.appendChild(actionCell);
+      
+      fragment.appendChild(row);
+    });
+    
+    // 一次性添加所有行到DOM
+    tbody.appendChild(fragment);
+  }
+
+  // 绑定操作按钮事件（委托）
+  tbody.removeEventListener('click', handleTableClick);
+  tbody.addEventListener('click', handleTableClick);
 }
 
