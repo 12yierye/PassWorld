@@ -17,17 +17,17 @@ const createWindow = () => {
   const options = {
     width: 1200,
     height: 800,
-    minWidth: 800,  // 根据UI设计规范设置最小宽度
-    minHeight: 500, // 根据UI设计规范设置最小高度
+    minWidth: 800,
+    minHeight: 500,
     webPreferences: {
-      nodeIntegration: true,  // 启用nodeIntegration以支持原生JS功能
-      contextIsolation: false, // 由于需要支持原生JS功能，暂时关闭上下文隔离
-      preload: join(__dirname, '../../electron/preload.js')  // 修正预加载脚本路径
+      nodeIntegration: true,
+      contextIsolation: false,
+      preload: join(__dirname, '../../electron/preload.js')
     },
-    icon: join(__dirname, '../../assets/Normal Locker.png'), // 如果有图标文件的话
-    show: false, // 先不显示窗口，等页面加载完成后再显示
-    frame: false, // 禁用默认窗口边框，使用自定义标题栏
-    backgroundColor: '#ffffff' // 设置背景色，确保窗口外观一致
+    icon: join(__dirname, '../../assets/Normal Locker.png'),
+    show: false,
+    frame: false,
+    backgroundColor: '#ffffff'
   };
 
   mainWindow = new BrowserWindow(options);
@@ -39,9 +39,17 @@ const createWindow = () => {
     const pathname = urlObj.pathname;
     const filename = pathname.split('/').pop() || 'index.html'; // 如果没有文件名，默认为index.html
     console.log(`Page finished loading: ${filename}`);
-    // if (!app.isPackaged) {
-    //   mainWindow.webContents.openDevTools(); // 开发环境下自动打开开发者工具
-    // }
+    
+    // 根据页面设置不同的窗口大小
+    if (filename === 'login.html' || filename === 'faceAuth.html' || filename === 'register.html') {
+      // 登录/注册/人脸识别页面：适合中间白色区域的大小
+      mainWindow.setSize(550, 400);
+      mainWindow.center(); // 居中显示
+    } else if (filename === 'mainPage.html') {
+      // 主页面：正常大小
+      mainWindow.setSize(1200, 800);
+      mainWindow.center(); // 居中显示
+    }
     mainWindow.show(); // 页面加载完成后显示窗口
   });
 
