@@ -44,10 +44,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     `;
   }
 
+  // 初始化标题栏按钮
+  initWindowControlButtons();
+  
   // 异步加载账户数据
   await loadAccounts();
   setupEventListeners();
 });
+
+// 初始化窗口控制按钮
+function initWindowControlButtons() {
+  console.log('初始化窗口控制按钮');
+  console.log('window.electron对象:', window.electron);
+  
+  // 直接绑定事件，不使用可选链
+  const minimizeBtn = document.getElementById('minimize-btn');
+  const maximizeBtn = document.getElementById('maximize-btn');
+  const closeBtn = document.getElementById('close-btn');
+  
+  console.log('按钮元素:', { minimizeBtn, maximizeBtn, closeBtn });
+  
+  if (minimizeBtn) {
+    minimizeBtn.addEventListener('click', () => {
+      console.log('点击最小化按钮');
+      window.electron.minimizeWindow().catch(err => console.error('最小化失败:', err));
+    });
+  }
+  
+  if (maximizeBtn) {
+    maximizeBtn.addEventListener('click', () => {
+      console.log('点击最大化按钮');
+      window.electron.toggleMaximizeWindow().catch(err => console.error('最大化失败:', err));
+    });
+  }
+  
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      console.log('点击关闭按钮');
+      window.electron.closeWindow().catch(err => console.error('关闭失败:', err));
+    });
+  }
+}
 
 function showError(message) {
   const errorDiv = document.getElementById('error-message');

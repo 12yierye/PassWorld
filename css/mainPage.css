@@ -1,8 +1,34 @@
+/* 全局样式重置 */
 * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 只在非输入元素上应用user-select: none */
+body:not(input):not(textarea):not(select):not(button),
+div:not(input):not(textarea):not(select):not(button),
+table:not(input):not(textarea):not(select):not(button),
+th:not(input):not(textarea):not(select):not(button),
+td:not(input):not(textarea):not(select):not(button),
+tr:not(input):not(textarea):not(select):not(button),
+button:not(input):not(textarea):not(select) {
   -webkit-user-select: none;
   -ms-user-select: none;
   -moz-user-select: none;
   user-select: none;
+}
+
+/* 确保输入元素可以被选择和聚焦 */
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+  outline: none; /* 移除默认的聚焦轮廓，使用自定义样式 */
 }
 
 .accounts-section {
