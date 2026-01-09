@@ -8,9 +8,19 @@
   <link rel="stylesheet" href="css/mainPage.css" />
 </head>
 <body>
+  <!-- 自定义标题栏 -->
+  <div class="title-bar">
+    <div class="title-bar-text">PassWorld</div>
+    <div class="title-bar-buttons">
+      <button id="logout-btn" class="title-bar-btn" title="退出登录">退出登录</button>
+      <button id="minimize-btn" class="title-bar-btn" title="最小化">─</button>
+      <button id="maximize-btn" class="title-bar-btn" title="最大化/还原">□</button>
+      <button id="close-btn" class="title-bar-btn close-btn" title="关闭">×</button>
+    </div>
+  </div>
+
   <div class="container">
     <header>
-      <h1>PassWorld</h1>
       <div id="user-info">Loading...</div>
     </header>
 
@@ -19,7 +29,6 @@
         <h2>Accounts List</h2>
         <div>
           <button type="button" id="add-account-btn" class="btn-add">New</button>
-          <button type="button" id="logout-btn" class="btn-logout">Logout</button>
         </div>
       </div>
       <div id="error-message" class="error-message hidden"></div>

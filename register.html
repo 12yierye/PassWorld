@@ -8,9 +8,18 @@
   <link rel="stylesheet" href="css/register.css" />
 </head>
 <body>
+  <!-- 自定义标题栏 -->
+  <div class="title-bar">
+    <div class="title-bar-text">PassWorld</div>
+    <div class="title-bar-buttons">
+      <button id="minimize-btn" class="title-bar-btn" title="最小化">─</button>
+      <button id="maximize-btn" class="title-bar-btn" title="最大化/还原">□</button>
+      <button id="close-btn" class="title-bar-btn close-btn" title="关闭">×</button>
+    </div>
+  </div>
+
   <div class="container">
     <header>
-      <h1>PassWorld</h1>
       <div id="user-info">未登录</div>
     </header>
 
@@ -31,5 +40,26 @@
 
   <script src="js/global.js"></script>
   <script src="js/register.js"></script>
+  <script src="js/global.js"></script>
+  <script src="js/register.js"></script>
+  <script>
+    // 初始化窗口控制按钮
+    document.addEventListener('DOMContentLoaded', function() {
+      // 最小化按钮
+      document.getElementById('minimize-btn')?.addEventListener('click', () => {
+        window.electron.ipcRenderer.invoke('minimize-window');
+      });
+      
+      // 最大化/还原按钮
+      document.getElementById('maximize-btn')?.addEventListener('click', () => {
+        window.electron.ipcRenderer.invoke('toggle-maximize-window');
+      });
+      
+      // 关闭按钮
+      document.getElementById('close-btn')?.addEventListener('click', () => {
+        window.electron.ipcRenderer.invoke('close-window');
+      });
+    });
+  </script>
 </body>
 </html>
