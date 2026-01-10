@@ -58,6 +58,7 @@ tmp/
 temp/
 *.tmp
 *.temp
+electron-builder-temp.json
 
 # Large files
 *.zip
