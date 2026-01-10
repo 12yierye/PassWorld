@@ -11,6 +11,7 @@
     "dev": "npx electron .",
     "postinstall": "electron-builder install-app-deps",
     "build": "electron-builder",
+    "build:auto": "node auto-build.js",
     "dev:win": "npx electron ."
   },
   "dependencies": {
