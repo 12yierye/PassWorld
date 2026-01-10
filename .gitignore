@@ -72,6 +72,7 @@ electron-builder-temp.json
 # Unnecessary files
 Release note.*
 Release note
+Release note*
 TODO.*
 TODO
 Problems.*
