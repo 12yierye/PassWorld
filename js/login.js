@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+
 
 // 初始化标题栏按钮
 document.addEventListener('DOMContentLoaded', () => {
@@ -49,7 +49,7 @@ document.getElementById('login-btn').addEventListener('click', async () => {
 
   // 检查用户是否存在
   try {
-    const result = await ipcRenderer.invoke('db-check-user', username);
+    const result = await window.electron.invoke('db-check-user', username);
     if (result.exists) {
       // 用户存在，跳转到人脸识别页面
       window.location.href = `faceAuth.html?username=${encodeURIComponent(username)}&action=login`;
@@ -116,7 +116,7 @@ document.getElementById('face-id-btn').addEventListener('click', async () => {
     
     // 由于是假人脸识别，我们直接进入主界面
     // 在实际应用中，这里应该验证用户是否存在
-    const result = await ipcRenderer.invoke('db-check-user', username);
+    const result = await window.electron.invoke('db-check-user', username);
     if (result.exists) {
       // 尝试从本地存储获取主密码（如果有）
       const savedMasterPassword = localStorage.getItem(`masterPassword_${username}`) || 'default_password';

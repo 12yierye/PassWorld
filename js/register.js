@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+
 
 function showError(message) {
   const errorDiv = document.getElementById('error-message');
@@ -26,6 +26,45 @@ function showSuccess(message) {
   }, 5000); // 5秒后隐藏
 }
 
+// 初始化窗口控制按钮
+function initWindowControlButtons() {
+  console.log('初始化窗口控制按钮 (register.html)');
+  console.log('window.electron对象:', window.electron);
+  
+  // 直接绑定事件
+  const minimizeBtn = document.getElementById('minimize-btn');
+  const maximizeBtn = document.getElementById('maximize-btn');
+  const closeBtn = document.getElementById('close-btn');
+  
+  console.log('按钮元素:', { minimizeBtn, maximizeBtn, closeBtn });
+  
+  if (minimizeBtn) {
+    minimizeBtn.addEventListener('click', () => {
+      console.log('点击最小化按钮');
+      window.electron.minimizeWindow().catch(err => console.error('最小化失败:', err));
+    });
+  }
+  
+  if (maximizeBtn) {
+    maximizeBtn.addEventListener('click', () => {
+      console.log('点击最大化按钮');
+      window.electron.toggleMaximizeWindow().catch(err => console.error('最大化失败:', err));
+    });
+  }
+  
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      console.log('点击关闭按钮');
+      window.electron.closeWindow().catch(err => console.error('关闭失败:', err));
+    });
+  }
+}
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', () => {
+  initWindowControlButtons();
+});
+
 document.getElementById('register-btn').addEventListener('click', async () => {
   const username = document.getElementById('username').value.trim();
 
@@ -43,7 +82,7 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     // 生成随机密码用于注册（内部使用，用户不需要知道）
     const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     
-    const result = await ipcRenderer.invoke('db-create-user', username, randomPassword);
+    const result = await window.electron.invoke('db-create-user', username, randomPassword);
     if (result.success) {
       showSuccess('注册成功！');
       

@@ -73,18 +73,22 @@ body {
 }
 
 .close-btn {
-  background-color: #ff5f57;
-  color: white;
-  border-color: #d9453c;
+  background-color: rgba(240, 240, 240, 0.6); /* 默认与其他按钮相同 */
+  color: #333;
+  border-color: #ccc;
   transition: all 0.2s ease;
 }
 
 .close-btn:hover {
-  background-color: #ff7872;
+  background-color: rgba(255, 95, 87, 0.8); /* hover时变红 */
+  color: white;
+  border-color: rgba(217, 69, 60, 0.8);
 }
 
 .close-btn:active {
-  background-color: #e04844;
+  background-color: rgba(224, 72, 68, 0.9); /* 点击时更深的红色 */
+  color: white;
+  border-color: rgba(217, 69, 60, 0.9);
 }
 
 .logout-btn:active {

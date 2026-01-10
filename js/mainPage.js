@@ -234,7 +234,7 @@ function setupEventListeners() {
   });
 }
 
-const { ipcRenderer } = require('electron');
+
 
 let accounts = [];
 
@@ -256,7 +256,7 @@ async function saveAccountsToDb(accs) {
     throw new Error('主密码不存在');
   }
   try {
-    const result = await ipcRenderer.invoke('db-save-accounts', currentUser, masterPassword, accs);
+    const result = await window.electron.invoke('db-save-accounts', currentUser, masterPassword, accs);
     console.log('数据库保存结果:', result);
     
     if (!result.success) {
@@ -318,7 +318,7 @@ async function loadAccounts() {
   
   try {
     console.log('正在从数据库加载账户数据...');
-    const result = await ipcRenderer.invoke('db-load-accounts', currentUser, masterPassword);
+    const result = await window.electron.invoke('db-load-accounts', currentUser, masterPassword);
     console.log('数据库加载结果:', result);
     
     accounts = result.accounts || [];

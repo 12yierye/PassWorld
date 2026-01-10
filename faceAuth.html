@@ -66,8 +66,7 @@
         // 模拟人脸识别验证
         if (action === 'login') {
           // 对于登录，检查用户是否存在
-          const { ipcRenderer } = require('electron');
-          const result = await ipcRenderer.invoke('db-check-user', username);
+        const result = await window.electron.invoke('db-check-user', username);
           
           if (result.exists) {
             // 设置当前用户并跳转到主页面

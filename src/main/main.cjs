@@ -20,8 +20,8 @@ const createWindow = () => {
     minWidth: 800,
     minHeight: 500,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      nodeIntegration: false,
+      contextIsolation: true,
       preload: join(__dirname, '../../electron/preload.js')
     },
     icon: join(__dirname, '../../assets/Normal Locker.png'),
@@ -145,24 +145,43 @@ app.on('window-all-closed', () => {
 
 // IPC处理窗口控制
 ipcMain.handle('minimize-window', async (event) => {
+  console.log('收到最小化窗口请求');
   if (mainWindow) {
+    console.log('执行最小化操作');
     mainWindow.minimize();
+    return { success: true };
+  } else {
+    console.error('最小化操作失败：mainWindow 未定义');
+    return { success: false, error: 'mainWindow 未定义' };
   }
 });
 
 ipcMain.handle('toggle-maximize-window', async (event) => {
+  console.log('收到最大化窗口切换请求');
   if (mainWindow) {
+    console.log('执行最大化/还原操作');
     if (mainWindow.isMaximized()) {
       mainWindow.unmaximize();
+      return { success: true, action: 'unmaximize' };
     } else {
       mainWindow.maximize();
+      return { success: true, action: 'maximize' };
     }
+  } else {
+    console.error('最大化操作失败：mainWindow 未定义');
+    return { success: false, error: 'mainWindow 未定义' };
   }
 });
 
 ipcMain.handle('close-window', async (event) => {
+  console.log('收到关闭窗口请求');
   if (mainWindow) {
+    console.log('执行关闭操作');
     mainWindow.close();
+    return { success: true };
+  } else {
+    console.error('关闭操作失败：mainWindow 未定义');
+    return { success: false, error: 'mainWindow 未定义' };
   }
 });
 

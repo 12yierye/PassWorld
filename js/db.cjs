@@ -354,12 +354,22 @@ async function loadAccounts(user, masterPassword) {
 async function checkUserExists(username) {
   let stmt;
   try {
+    // 先检查数据库连接
+    if (!userDb) {
+      console.error('数据库连接不存在');
+      return false;
+    }
+    
+    // 执行查询
     stmt = userDb.prepare(`SELECT 1 FROM users WHERE username = ?`);
     const row = stmt.get([username]);
     stmt.free();
-    return !!row; // 如果查询结果不为null，则用户存在
+    
+    // 在SQL.js中，get()方法在没有匹配行时返回空数组[]而不是null
+    // 我们需要检查它是否是一个数组且没有元素
+    return Array.isArray(row) && row.length === 0 ? false : !!row;
   } catch (error) {
-    console.error('Error checking if user exists:', error);
+    console.error('检查用户是否存在时出错:', error);
     return false;
   }
 }
