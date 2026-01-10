@@ -3,14 +3,16 @@
   "productName": "PassWorld",
   "copyright": "Copyright © 2024 PassWorld Team",
   "directories": {
-    "output": "build-1768029500697",
+    "output": "build-1768029837674",
     "buildResources": "assets"
   },
   "files": [
     "**/*",
     "!node_modules/**/*",
+    "node_modules/sql.js/**/*",
+    "node_modules/face-api.js/**/*",
     "!dist/**/*",
-    "!build-1768029500697/**/*"
+    "!build-1768029837674/**/*"
   ],
   "win": {
     "target": "nsis",
