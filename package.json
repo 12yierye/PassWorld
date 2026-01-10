@@ -10,6 +10,7 @@
     "start": "npx electron .",
     "dev": "npx electron .",
     "postinstall": "electron-builder install-app-deps",
+    "build": "electron-builder",
     "dev:win": "npx electron ."
   },
   "dependencies": {
