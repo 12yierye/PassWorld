@@ -1,0 +1,33 @@
+{
+  "appId": "com.passworld.app",
+  "productName": "PassWorld",
+  "copyright": "Copyright © 2024 PassWorld Team",
+  "directories": {
+    "output": "dist",
+    "buildResources": "assets"
+  },
+  "files": [
+    "**/*",
+    "!node_modules/**/*",
+    "!dist/**/*"
+  ],
+  "win": {
+    "target": "nsis",
+    "icon": "assets/Normal Locker.png",
+    "requestedExecutionLevel": "asInvoker"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true
+  },
+  "mac": {
+    "target": "dmg",
+    "icon": "assets/Normal Locker.png"
+  },
+  "linux": {
+    "target": "AppImage",
+    "icon": "assets/Normal Locker.png"
+  }
+}
