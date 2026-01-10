@@ -18,6 +18,10 @@ data/
 dist/
 dist-ssr/
 dist-electron/
+build/
+build-new/
+build*
+build-*
 
 # Large model files (if not needed in repo)
 public/models/
