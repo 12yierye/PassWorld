@@ -10,41 +10,8 @@ const timestamp = new Date().getTime();
 const outputDir = `build-${timestamp}`;
 console.log(`\n[1/4] 使用唯一输出目录: ${outputDir}`);
 
-// 2. 修改electron-builder配置文件
-const electronBuilderConfigPath = path.join(process.cwd(), 'electron-builder.json');
-
-// 安全地解析和修改JSON配置
-const config = JSON.parse(fs.readFileSync(electronBuilderConfigPath, 'utf8'));
-
-// 更新输出目录
-config.directories.output = outputDir;
-
-// 确保files数组存在且格式正确
-if (!Array.isArray(config.files)) {
-  config.files = ['**/*', '!node_modules/**/*', '!dist/**/*'];
-}
-
-// 清理旧的构建目录排除规则和依赖模块规则
-config.files = config.files.filter(file => {
-  return !file.match(/^!build(?:-[^/]+)?\/\*\*\/\*$/) && 
-         !file.match(/^node_modules\/(sql\.js|face-api\.js)\/\*\*\/\*$/);
-});
-
-// 确保包含必要的依赖模块
-config.files.push(
-  "node_modules/sql.js/**/*",
-  "node_modules/face-api.js/**/*"
-);
-
-// 添加新的输出目录排除
-config.files.push(`!${outputDir}/**/*`);
-
-// 写回配置文件
-fs.writeFileSync(electronBuilderConfigPath, JSON.stringify(config, null, 2));
-console.log('[2/4] 已更新electron-builder配置');
-
-// 3. 终止所有可能占用文件的PassWorld进程
-console.log('[3/4] 清理占用资源的进程...');
+// 2. 终止所有可能占用文件的PassWorld进程
+console.log('[2/4] 清理占用资源的进程...');
 try {
   // 终止PassWorld相关进程
   execSync('taskkill /f /im PassWorld.exe 2>&1', { stdio: 'ignore' });
@@ -55,10 +22,42 @@ try {
   console.log('  ✓ 没有运行中的PassWorld进程');
 }
 
-// 4. 运行构建命令
+// 3. 创建临时配置文件，继承主配置并覆盖输出目录
+console.log('[3/4] 创建临时构建配置...');
+const mainConfigPath = path.join(process.cwd(), 'electron-builder.json');
+const mainConfig = JSON.parse(fs.readFileSync(mainConfigPath, 'utf8'));
+
+// 创建临时配置，继承主配置并修改必要的部分
+const tempConfig = {
+  ...mainConfig,
+  directories: {
+    ...mainConfig.directories,
+    output: outputDir
+  },
+  files: [
+    "**/*",
+    "!node_modules/**/*",
+    "!dist/**/*",
+    "!build*/**/*",
+    "node_modules/sql.js/**/*",
+    "node_modules/face-api.js/**/*",
+    `!${outputDir}/**/*`
+  ]
+};
+
+// 写入临时配置文件
+const tempConfigPath = path.join(process.cwd(), 'electron-builder-temp.json');
+fs.writeFileSync(tempConfigPath, JSON.stringify(tempConfig, null, 2));
+console.log(`  ✓ 临时配置文件已创建: ${tempConfigPath}`);
+
+// 4. 运行构建命令，使用临时配置文件
 console.log(`[4/4] 开始构建项目...`);
 try {
-  const buildOutput = execSync('npm run build', { encoding: 'utf8' });
+  // 使用临时配置文件进行构建
+  const buildOutput = execSync(
+    `npx electron-builder --config="${tempConfigPath}"`, 
+    { encoding: 'utf8' }
+  );
   console.log('  ✓ 构建成功！');
   
   // 显示构建结果路径
@@ -70,6 +69,12 @@ try {
   console.error('  ✗ 构建失败！');
   console.error(err.stdout || err.stderr || err.message);
   process.exit(1);
+} finally {
+  // 清理临时配置文件
+  if (fs.existsSync(tempConfigPath)) {
+    fs.unlinkSync(tempConfigPath);
+    console.log(`\n[清理] 临时配置文件已删除`);
+  }
 }
 
 console.log('\n=== 自动化构建流程完成 ===');
