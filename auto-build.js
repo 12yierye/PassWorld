@@ -24,10 +24,17 @@ if (!Array.isArray(config.files)) {
   config.files = ['**/*', '!node_modules/**/*', '!dist/**/*'];
 }
 
-// 清理旧的构建目录排除规则
+// 清理旧的构建目录排除规则和依赖模块规则
 config.files = config.files.filter(file => {
-  return !file.match(/^!build(?:-[^/]+)?\/\*\*\/\*$/);
+  return !file.match(/^!build(?:-[^/]+)?\/\*\*\/\*$/) && 
+         !file.match(/^node_modules\/(sql\.js|face-api\.js)\/\*\*\/\*$/);
 });
+
+// 确保包含必要的依赖模块
+config.files.push(
+  "node_modules/sql.js/**/*",
+  "node_modules/face-api.js/**/*"
+);
 
 // 添加新的输出目录排除
 config.files.push(`!${outputDir}/**/*`);
