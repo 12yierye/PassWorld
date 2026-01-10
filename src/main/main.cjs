@@ -145,21 +145,21 @@ app.on('window-all-closed', () => {
 
 // IPC处理窗口控制
 ipcMain.handle('minimize-window', async (event) => {
-  console.log('收到最小化窗口请求');
+  console.log('Minimize window request received');
   if (mainWindow) {
-    console.log('执行最小化操作');
+    console.log('Performing minimize operation');
     mainWindow.minimize();
     return { success: true };
   } else {
-    console.error('最小化操作失败：mainWindow 未定义');
-    return { success: false, error: 'mainWindow 未定义' };
+    console.error('Minimize operation failed: mainWindow is undefined');
+    return { success: false, error: 'mainWindow is undefined' };
   }
 });
 
 ipcMain.handle('toggle-maximize-window', async (event) => {
-  console.log('收到最大化窗口切换请求');
+  console.log('Maximize window toggle request received');
   if (mainWindow) {
-    console.log('执行最大化/还原操作');
+    console.log('Performing maximize/restore operation');
     if (mainWindow.isMaximized()) {
       mainWindow.unmaximize();
       return { success: true, action: 'unmaximize' };
@@ -168,20 +168,20 @@ ipcMain.handle('toggle-maximize-window', async (event) => {
       return { success: true, action: 'maximize' };
     }
   } else {
-    console.error('最大化操作失败：mainWindow 未定义');
-    return { success: false, error: 'mainWindow 未定义' };
+    console.error('Maximize operation failed: mainWindow is undefined');
+    return { success: false, error: 'mainWindow is undefined' };
   }
 });
 
 ipcMain.handle('close-window', async (event) => {
-  console.log('收到关闭窗口请求');
+  console.log('Close window request received');
   if (mainWindow) {
-    console.log('执行关闭操作');
+    console.log('Performing close operation');
     mainWindow.close();
     return { success: true };
   } else {
-    console.error('关闭操作失败：mainWindow 未定义');
-    return { success: false, error: 'mainWindow 未定义' };
+    console.error('Close operation failed: mainWindow is undefined');
+    return { success: false, error: 'mainWindow is undefined' };
   }
 });
 

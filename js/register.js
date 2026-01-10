@@ -28,34 +28,34 @@ function showSuccess(message) {
 
 // 初始化窗口控制按钮
 function initWindowControlButtons() {
-  console.log('初始化窗口控制按钮 (register.html)');
-  console.log('window.electron对象:', window.electron);
+  console.log('Initializing window control buttons (register.html)');
+  console.log('window.electron object:', window.electron);
   
   // 直接绑定事件
   const minimizeBtn = document.getElementById('minimize-btn');
   const maximizeBtn = document.getElementById('maximize-btn');
   const closeBtn = document.getElementById('close-btn');
   
-  console.log('按钮元素:', { minimizeBtn, maximizeBtn, closeBtn });
+  console.log('Button elements:', { minimizeBtn, maximizeBtn, closeBtn });
   
   if (minimizeBtn) {
     minimizeBtn.addEventListener('click', () => {
-      console.log('点击最小化按钮');
-      window.electron.minimizeWindow().catch(err => console.error('最小化失败:', err));
+      console.log('Minimize button clicked');
+      window.electron.minimizeWindow().catch(err => console.error('Minimize failed:', err));
     });
   }
   
   if (maximizeBtn) {
     maximizeBtn.addEventListener('click', () => {
-      console.log('点击最大化按钮');
-      window.electron.toggleMaximizeWindow().catch(err => console.error('最大化失败:', err));
+      console.log('Maximize button clicked');
+      window.electron.toggleMaximizeWindow().catch(err => console.error('Maximize failed:', err));
     });
   }
   
   if (closeBtn) {
     closeBtn.addEventListener('click', () => {
-      console.log('点击关闭按钮');
-      window.electron.closeWindow().catch(err => console.error('关闭失败:', err));
+      console.log('Close button clicked');
+      window.electron.closeWindow().catch(err => console.error('Close failed:', err));
     });
   }
 }

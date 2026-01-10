@@ -54,34 +54,34 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // 初始化窗口控制按钮
 function initWindowControlButtons() {
-  console.log('初始化窗口控制按钮');
-  console.log('window.electron对象:', window.electron);
+  console.log('Initializing window control buttons');
+  console.log('window.electron object:', window.electron);
   
   // 直接绑定事件，不使用可选链
   const minimizeBtn = document.getElementById('minimize-btn');
   const maximizeBtn = document.getElementById('maximize-btn');
   const closeBtn = document.getElementById('close-btn');
   
-  console.log('按钮元素:', { minimizeBtn, maximizeBtn, closeBtn });
+  console.log('Button elements:', { minimizeBtn, maximizeBtn, closeBtn });
   
   if (minimizeBtn) {
     minimizeBtn.addEventListener('click', () => {
-      console.log('点击最小化按钮');
-      window.electron.minimizeWindow().catch(err => console.error('最小化失败:', err));
+      console.log('Minimize button clicked');
+      window.electron.minimizeWindow().catch(err => console.error('Minimize failed:', err));
     });
   }
   
   if (maximizeBtn) {
     maximizeBtn.addEventListener('click', () => {
-      console.log('点击最大化按钮');
-      window.electron.toggleMaximizeWindow().catch(err => console.error('最大化失败:', err));
+      console.log('Maximize button clicked');
+      window.electron.toggleMaximizeWindow().catch(err => console.error('Maximize failed:', err));
     });
   }
   
   if (closeBtn) {
     closeBtn.addEventListener('click', () => {
-      console.log('点击关闭按钮');
-      window.electron.closeWindow().catch(err => console.error('关闭失败:', err));
+      console.log('Close button clicked');
+      window.electron.closeWindow().catch(err => console.error('Close failed:', err));
     });
   }
 }
@@ -246,18 +246,18 @@ async function saveAccountsToDb(accs) {
   const currentUser = PassWorld.getCurrentUser();
   const masterPassword = PassWorld.getMasterPassword(); // 使用getMasterPassword()确保获取最新的主密码
   
-  console.log('=== 开始保存账户数据 ===');
-  console.log('当前用户:', currentUser);
-  console.log('要保存的账户数量:', accs.length);
-  console.log('要保存的账户数据:', JSON.stringify(accs, null, 2));
+  console.log('=== Starting to save account data ===');
+  console.log('Current user:', currentUser);
+  console.log('Number of accounts to save:', accs.length);
+  console.log('Account data to save:', JSON.stringify(accs, null, 2));
   
   if (!masterPassword) {
-    console.error('保存失败：主密码不存在');
-    throw new Error('主密码不存在');
+    console.error('Save failed: Master password does not exist');
+    throw new Error('Master password does not exist');
   }
   try {
     const result = await window.electron.invoke('db-save-accounts', currentUser, masterPassword, accs);
-    console.log('数据库保存结果:', result);
+    console.log('Database save result:', result);
     
     if (!result.success) {
       // 检查是否在添加/编辑账户的模态框中
@@ -274,12 +274,12 @@ async function saveAccountsToDb(accs) {
       return result;
     }
   } catch (err) {
-    console.error('保存账户时发生异常:', err);
+    console.error('Exception occurred while saving accounts:', err);
     // 检查是否在添加/编辑账户的模态框中
     if (editingIndex !== null || document.getElementById('modal-title').textContent === '添加账户') {
-      showModalError('保存失败: ' + err.message);
+      showModalError('Save failed: ' + err.message);
     } else {
-      showError('保存失败: ' + err.message);
+      showError('Save failed: ' + err.message);
     }
     // 抛出错误，让调用方知道保存失败了
     throw err;
@@ -290,19 +290,19 @@ async function loadAccounts() {
   const currentUser = PassWorld.getCurrentUser();
   const masterPassword = PassWorld.getMasterPassword();
   
-  console.log('=== 开始加载账户数据 ===');
-  console.log('当前用户:', currentUser);
-  console.log('主密码存在:', !!masterPassword);
+  console.log('=== Starting to load account data ===');
+  console.log('Current user:', currentUser);
+  console.log('Master password exists:', !!masterPassword);
   
   if (!currentUser || !masterPassword) {
-    console.error('加载账户失败：用户未登录或主密码不存在');
+    console.error('Failed to load accounts: User not logged in or master password does not exist');
     return [];
   }
   
   // 显示加载指示器
   const tbody = document.getElementById('accounts-tbody');
   if (!tbody) {
-    console.error('加载账户失败：未找到表格tbody元素');
+    console.error('Failed to load accounts: Table tbody element not found');
     return [];
   }
   
@@ -317,13 +317,13 @@ async function loadAccounts() {
   loadingCell.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; padding: 40px 20px; color: #999;"><div class="spinner"></div> <span style="margin-left: 10px;">正在加载...</span></div>';
   
   try {
-    console.log('正在从数据库加载账户数据...');
+    console.log('Loading account data from database...');
     const result = await window.electron.invoke('db-load-accounts', currentUser, masterPassword);
-    console.log('数据库加载结果:', result);
+    console.log('Database load result:', result);
     
     accounts = result.accounts || [];
-    console.log('加载后的accounts数组长度:', accounts.length);
-    console.log('加载后的accounts数组:', JSON.stringify(accounts, null, 2));
+    console.log('Length of accounts array after loading:', accounts.length);
+    console.log('Accounts array after loading:', JSON.stringify(accounts, null, 2));
     
     // 清空表格内容
     tbody.innerHTML = '';
@@ -418,7 +418,7 @@ async function loadAccounts() {
     tbody.addEventListener('click', handleTableClick);
     
   } catch (err) {
-    console.error('加载账户失败:', err);
+    console.error('Failed to load accounts:', err);
     
     // 清空表格内容
     tbody.innerHTML = '';
@@ -575,10 +575,10 @@ async function saveAccount() {
     // 立即更新本地数组和UI（乐观UI）
     if (editingIndex !== null) {
       accounts[editingIndex] = newAccount;
-      console.log('编辑账户:', accounts[editingIndex]);
+      console.log('Editing account:', accounts[editingIndex]);
     } else {
       accounts.push(newAccount);
-      console.log('添加新账户:', accounts[accounts.length - 1]);
+      console.log('Adding new account:', accounts[accounts.length - 1]);
     }
     
     // 立即更新UI（不重新加载整个表格，只更新或添加行）
@@ -588,12 +588,12 @@ async function saveAccount() {
     closeModal();
     
     // 在后台保存到数据库（不阻塞UI）
-    console.log('开始在后台保存账户数据到数据库...');
+    console.log('Starting to save account data to database in background...');
     const saveResult = await saveAccountsToDb(accounts);
-    console.log('保存结果:', saveResult);
+    console.log('Save result:', saveResult);
     
     // 保存成功后显示成功消息
-    showSuccess('保存成功');
+    showSuccess('Save successful');
     
   } catch (error) {
     // 保存失败，恢复原始状态
@@ -602,8 +602,8 @@ async function saveAccount() {
     await loadAccounts(); // 重新加载表格
     
     // 显示错误消息
-    console.error('保存账户时发生错误:', error);
-    showError('保存失败: ' + error.message);
+    console.error('Error occurred while saving account:', error);
+    showError('Save failed: ' + error.message);
   } finally {
     // 恢复按钮状态
     const modal = document.getElementById('account-modal');

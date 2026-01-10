@@ -356,7 +356,7 @@ async function checkUserExists(username) {
   try {
     // 先检查数据库连接
     if (!userDb) {
-      console.error('数据库连接不存在');
+      console.error('Database connection does not exist');
       return false;
     }
     
@@ -369,7 +369,7 @@ async function checkUserExists(username) {
     // 我们需要检查它是否是一个数组且没有元素
     return Array.isArray(row) && row.length === 0 ? false : !!row;
   } catch (error) {
-    console.error('检查用户是否存在时出错:', error);
+    console.error('Error checking if user exists:', error);
     return false;
   }
 }
